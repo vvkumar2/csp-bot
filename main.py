@@ -151,7 +151,7 @@ def write_error(error):
     print(f"ERROR: {error}")
     
 # Get current date
-current_day = pd.Timestamp.today() + pd.Timedelta(days=2)
+current_day = pd.Timestamp.today()
 current_date = current_day.day_name()
 current_time = current_day.time()
 valid_exp_date = current_day.date() + pd.Timedelta(days=5)
@@ -213,21 +213,22 @@ if options_amount == 0:
 write_selling_details(expiration_date_pd, price, strike_price, bid_price, options_amount)
 
 # Check if we can add to the database (if we haven't sold too many options)
-if not add_to_database(current_day, expiration_date_pd, options_amount, bid_price):
+if add_to_database(current_day, expiration_date_pd, options_amount, bid_price):
+    # Send a notification to my phone
+    conn = httplib.HTTPSConnection("api.pushover.net:443", context=ssl._create_unverified_context())
+    conn.request("POST", "/1/messages.json",
+    urllib.urlencode({
+        "token": PUSHOVER_API_KEY,
+        "user": PUSHOVER_USER_KEY,
+        "message": f"SOFI 0{expiration_date_pd.month}/{expiration_date_pd.day}/{expiration_date.year} {strike_price:.2f} P\nSTO {options_amount} @ Limit {bid_price}, Day",
+    }), { "Content-type": "application/x-www-form-urlencoded" })
+    conn.getresponse()
+    print("Sent notification")
+else:
     write_error("Too many options sold")
     exit()
 
-# Send a notification to my phone
-conn = httplib.HTTPSConnection("api.pushover.net:443", context=ssl._create_unverified_context())
-conn.request("POST", "/1/messages.json",
-  urllib.urlencode({
-    "token": PUSHOVER_API_KEY,
-    "user": PUSHOVER_USER_KEY,
-    "message": f"SOFI 0{expiration_date_pd.month}/{expiration_date_pd.day}/{expiration_date.year} {strike_price:.2f} P\nSTO {options_amount} @ Limit {bid_price}, Day",
-  }), { "Content-type": "application/x-www-form-urlencoded" })
-conn.getresponse()
 
-print("Sent notification")
 
 # TODO: If selling options: add date sold, strike price, expiration date, amount sold, bid price to supabase
         # Also add to a different database, the date and amount sold
