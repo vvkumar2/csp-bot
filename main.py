@@ -220,7 +220,7 @@ if add_to_database(current_day, expiration_date_pd, options_amount, bid_price):
     urllib.urlencode({
         "token": PUSHOVER_API_KEY,
         "user": PUSHOVER_USER_KEY,
-        "message": f"SOFI 0{expiration_date_pd.month}/{expiration_date_pd.day}/{expiration_date.year} {strike_price:.2f} P\nSTO {options_amount} @ Limit {bid_price}, Day",
+        "message": f"SOFI 0{expiration_date_pd.month}/{expiration_date_pd.day}/{expiration_date_pd.year} {strike_price:.2f} P\nSTO {options_amount} @ Limit {bid_price}, Day",
     }), { "Content-type": "application/x-www-form-urlencoded" })
     conn.getresponse()
     print("Sent notification")
