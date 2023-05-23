@@ -1,4 +1,3 @@
-import pandas as pd
 import database
 import notifications
 import utils

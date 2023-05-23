@@ -75,9 +75,9 @@ def check_bid_price(day, bid):
 # Calculate how many options to sell based on the day and bid price
 def calculate_options_amount(day, bid, percent_change):
     options_amounts = {
-        'Monday': 15 if percent_change <= PERCENT_CHANGE_THRESHOLD or bid >= 0.07 else (10 if percent_change <= PERCENT_CHANGE_THRESHOLD/2 and bid >= 0.05 else 0),
-        'Tuesday': 12 if percent_change <= PERCENT_CHANGE_THRESHOLD or bid >= 0.06 else (5 if percent_change <= PERCENT_CHANGE_THRESHOLD/2 and bid >= 0.05 else 0),
-        'Wednesday': 8 if percent_change <= PERCENT_CHANGE_THRESHOLD or bid >= 0.05 else 0,
+        'Monday': 15 if percent_change <= PERCENT_CHANGE_THRESHOLD or bid >= 0.06 else (10 if percent_change <= PERCENT_CHANGE_THRESHOLD/2 and bid >= 0.05 else 0),
+        'Tuesday': 12 if percent_change <= PERCENT_CHANGE_THRESHOLD or bid >= 0.05 else (5 if percent_change <= PERCENT_CHANGE_THRESHOLD/2 and bid >= 0.04 else 0),
+        'Wednesday': 8 if percent_change <= PERCENT_CHANGE_THRESHOLD or bid >= 0.04 else 0,
         'Thursday': 5 if percent_change <= PERCENT_CHANGE_THRESHOLD or bid >= 0.04 else 0,
         'Friday': 3 if percent_change <= PERCENT_CHANGE_THRESHOLD or bid >= 0.03 else 0,
     }
