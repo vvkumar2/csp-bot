@@ -1,9 +1,9 @@
-# CSP Automation
+# Cash Secured Puts Automation
 
 ## About
-This Cash Secured Put (CSP) trading bot is designed to automate the process of trading these contracts. The bot executes trades based on a predefined set of parameters and aims to generate income through the sale of put options.
+This Cash Secured Put (CSP) trading bot is designed to automate the process of writing these contracts. The bot executes trades based on a predefined set of parameters and aims to generate income through the sale of put options.
 
-The primary objective of the bot is to identify suitable stock options to sell based on specific criteria such as bid price, expiration date, and percent change. It calculates the optimal quantity of options to sell based on the day of the week, bid price, and many more factors. The bot also includes functionality to manage trade quantities, track performance, and store trade data in a database.
+The primary objective of the bot is to identify suitable stock options to sell based on specific criteria such as bid price, expiration date, and percent change in the underlying. It calculates the optimal quantity of options to sell based on the day of the week, bid price, and many more factors. The bot also includes functionality to manage trade quantities, track performance, and store trade data in a database.
 
 By automating the trading process, this bot eliminates the need for manual monitoring and decision-making, allowing traders to focus on other aspects of their investment strategy.
 
@@ -20,6 +20,7 @@ Please note that while the bot provides automated trading functionality, it is e
 
 2. Install dependencies:
    - Install the required Python packages by running: `pip install -r requirements.txt`.
+
 3. Set up the necessary environment variables (PUSHOVER_API_KEY, PUSHOVER_USER_KEY, SUPABASE_URL, SUPABASE_KEY) in a `.env` file.
 
 ## Usage
@@ -31,9 +32,7 @@ Please note that while the bot provides automated trading functionality, it is e
     31 6-12 * * 1-5 cd path/to/file && mkdir -p logs/`date +\%Y-\%m-\%d` && path/to/venv/bin/python main.py > path/to/file/logs/`date +\%Y-\%m-\%d`/`date +\%H-\%M-\%S`-cron.log 2>&1
 ```
 
-* Replace the path/to/file with the actual path to your project directory and path/to/venv with the path to your virtual environment. This command will run the bot every minute past the hour from 6 AM to 12 PM (Monday to Friday), create a log directory with the current date, and save the logs in that directory with a timestamp.
-
-
+* Replace the path/to/file with the actual path to your project directory and path/to/venv with the path to your virtual environment. This command will run the bot every 31 minutes past the hour from 6 AM to 12 PM on weekdays (PST Trading Hours), create a log directory with the current date, and save the logs in that directory with a timestamp.
 
 ## Important Files
 - `main.py`: The entry point of the application.
