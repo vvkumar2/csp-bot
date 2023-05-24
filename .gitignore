@@ -2,4 +2,4 @@ __pycache__/
 venv/
 logs/
 .env
-test.py
+src/test.py
