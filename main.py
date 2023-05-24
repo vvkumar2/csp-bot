@@ -36,7 +36,7 @@ if not database.add_to_database(current_day, expiration_date_pd, options_amount,
     exit()
 
 # Send notification
-if not notifications.send_notification(expiration_date_pd, strike_price, options_amount, bid_price):
+if not notifications.send_notification(expiration_date_pd=expiration_date_pd, strike_price=strike_price, options_amount=options_amount, bid_price=bid_price):
     utils.write_error("Failed to send notification")
     exit()
 

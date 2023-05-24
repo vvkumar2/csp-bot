@@ -1,6 +1,7 @@
 import dotenv
 import os
 from supabase import create_client
+import pandas as pd
 
 # Load environment variables
 dotenv.load_dotenv()
@@ -14,6 +15,12 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 MAX_DAY_QUANTITY = 20
 MAX_WEEK_QUANTITY = 40
 
+def get_all_trade_info():
+    current_day = pd.Timestamp.today()
+    current_week = current_day.week
+    data, count = supabase.table('all_trade_info').select("*").eq("week_num", current_week).execute()
+    return data[1]
+
 def add_to_database(current_date, expiry_date, quantity, bid_price):
     # Get day and week data from Supabase
     day_data, day_count = supabase.table('daily_trade_quantity').select("quantity").eq("sell_date", current_date.isoformat()).execute()
@@ -23,7 +30,7 @@ def add_to_database(current_date, expiry_date, quantity, bid_price):
     if not week_data[1]:
         supabase.table('daily_trade_quantity').insert({"sell_date": current_date.isoformat(), "quantity": quantity}).execute()
         supabase.table('weekly_trade_quantity').insert({"week_num": current_date.week, "quantity": quantity}).execute()
-        supabase.table('all_trade_info').insert({"sell_date": current_date.isoformat(), "expiration_date": expiry_date.isoformat(), "bid_price": bid_price, "quantity": quantity}).execute()
+        supabase.table('all_trade_info').insert({"week_num": current_date.week, "sell_date": current_date.isoformat(), "expiration_date": expiry_date.isoformat(), "bid_price": bid_price, "quantity": quantity}).execute()
         print(f"Added to database: sold {quantity} options")
         return True
     
@@ -54,7 +61,7 @@ def add_to_database(current_date, expiry_date, quantity, bid_price):
             supabase.table('daily_trade_quantity').insert({"sell_date": current_date.isoformat(), "quantity": quantity}).execute()
         else:
             supabase.table('daily_trade_quantity').update({"quantity": day_total_sold}).eq("sell_date", current_date.isoformat()).execute()
-        supabase.table('all_trade_info').insert({"sell_date": current_date.isoformat(), "expiration_date": expiry_date.isoformat(), "bid_price": bid_price, "quantity": quantity}).execute()
+        supabase.table('all_trade_info').insert({"week_num": current_date.week, "sell_date": current_date.isoformat(), "expiration_date": expiry_date.isoformat(), "bid_price": bid_price, "quantity": quantity}).execute()
         print(f"Added to database: sold {quantity} options")
         return True
     return False
