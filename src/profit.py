@@ -1,18 +1,50 @@
-import database, notifications, utils
+import database, notifications, utils, stock
 
-def calculate_total_profit():
-    data = database.get_all_trade_info()
-    total_profit = 0
-    total_quantity = 0
-    for row in data:
-        total_profit += 100 * row['quantity'] * row['bid_price']
-        total_quantity += row['quantity']
-    total_profit -= total_quantity * 0.65
-    return total_profit, total_quantity
+# Calculate profit for each strike price and store in dictionary
+def calculate_profit(trade_data):
+    profit = {}
 
+    for trade in trade_data:
+        strike_price = trade['strike_price']
+        quantity = trade['quantity']
+        bid_price = trade['bid_price']
+
+        if strike_price not in profit:
+            profit[strike_price] = [0, 0]
+        profit[strike_price][0] += 100 * quantity * bid_price
+        profit[strike_price][1] += quantity
+
+    for key in profit:
+        profit[key][0] -= profit[key][1] * 0.65
+
+    return profit
+
+# Get all trade information from database
+def get_all_trade_info():
+    try:
+        data = database.get_all_trade_info()
+        return data
+    except Exception as e:
+        print(f"Error retrieving trade information: {str(e)}")
+        return []
+
+# Calculate profit and send notification with total profit and quantity
 if __name__ == "__main__":
-    total_profit, total_quantity = calculate_total_profit()
-    if not notifications.send_notification(options_amount=total_quantity, profit=total_profit):
+    underlying_price = stock.get_underlying_price("SOFI")
+    trade_data = get_all_trade_info()
+    profit_data = calculate_profit(trade_data)
+    message = "Weekly Summary:\n"
+
+    for strike in profit_data:
+        if strike > underlying_price:
+            message += f"Strike: {strike}, Quantity: {profit_data[strike][1]}. ASSIGNED.\n"
+        else:
+            message += f"Strike: {strike}, Quantity: {profit_data[strike][1]}, Profit: {profit_data[strike][0]:.2f}\n"
+
+    if not notifications.send_notification(profit=False, message=message):
         utils.write_error("Failed to send notification")
         exit()
-    print(f"Sent notification. Profit: {total_profit:.2f}")
+    else:
+        print (message)
+        print("Sent notification")
+    

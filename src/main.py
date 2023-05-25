@@ -31,20 +31,18 @@ if options_amount == 0:
 utils.write_selling_details(expiration_date_pd, price, strike_price, bid_price, options_amount)
 
 # Add to database
-if not database.add_to_database(current_day, expiration_date_pd, options_amount, bid_price):
+if not database.add_to_database(current_day, expiration_date_pd, options_amount, strike_price, bid_price):
     utils.write_error("Too many options sold")
     exit()
 
 # Send notification
-if not notifications.send_notification(expiration_date_pd=expiration_date_pd, strike_price=strike_price, options_amount=options_amount, bid_price=bid_price):
+if not notifications.send_notification(expiration_date_pd=expiration_date_pd, strike_price=strike_price, options_amount=options_amount, bid_price=bid_price, profit=False):
     utils.write_error("Failed to send notification")
     exit()
 
 print("Sent notification")
-    
 
-
-# TODO: Figure out how to run cron job even when computer is asleep
+# TODO: Calculate profit with different strike prices and assignments
 
 # TODO: Actually sell the options
 

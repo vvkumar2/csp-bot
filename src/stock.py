@@ -8,6 +8,11 @@ PRICE_TO_STRIKE_DIFFERENCE = 0.08
 MAX_STRIKE_PRICE = 5.5
 PERCENT_CHANGE_THRESHOLD = -0.01
 
+# Get stock price
+def get_underlying_price(ticker):
+    ticker_details = yf.Ticker(ticker)
+    return ticker_details.info['currentPrice']
+
 # Get stock details
 def get_stock_details(ticker, current_time, valid_exp_date):
     # Get the ticker details
