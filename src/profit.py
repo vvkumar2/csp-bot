@@ -37,11 +37,11 @@ if __name__ == "__main__":
 
     for strike in profit_data:
         if strike > underlying_price:
-            message += f"Strike: {strike}, Quantity: {profit_data[strike][1]}. ASSIGNED.\n"
+            message += f"Strike: ${strike:.2f}, Quantity: {profit_data[strike][1]}. ASSIGNED.\n"
         else:
-            message += f"Strike: {strike}, Quantity: {profit_data[strike][1]}, Profit: {profit_data[strike][0]:.2f}\n"
+            message += f"Strike: ${strike:.2f}, Quantity: {profit_data[strike][1]}, Profit: ${profit_data[strike][0]:.2f}\n"
 
-    if not notifications.send_notification(profit=False, message=message):
+    if not notifications.send_notification(profit=True, message=message):
         utils.write_error("Failed to send notification")
         exit()
     else:
