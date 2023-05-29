@@ -65,3 +65,13 @@ def add_to_database(current_date, expiry_date, quantity, strike_price, bid_price
         print(f"Added to database: sold {quantity} options")
         return True
     return False
+
+# Add weekly profit data to Supabase
+def add_weekly_profit_data(current_date, average_bid, quantity, profit, collateral, roi):
+    try:
+        supabase.table('weekly_profit').insert({"week_number": current_date.week, "average_bid": average_bid, "quantity": quantity, "profit": profit, "collateral": collateral, "roi": roi}).execute()
+        print(f"Added weekly profit data:\nWeek: {current_date.week}, Average Bid: {average_bid}, Quantity: {quantity}, Profit: {profit}, Collateral: {collateral}, ROI: {roi}")
+        return True
+    except Exception as e:
+        print(f"Error adding weekly profit data: {str(e)}")
+        return False
