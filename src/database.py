@@ -21,7 +21,7 @@ def get_all_trade_info():
     data, count = supabase.table('all_trade_info').select("*").eq("week_num", current_week).execute()
     return data[1]
 
-def add_to_database(current_date, expiry_date, quantity, strike_price, bid_price):
+def add_to_database(symbol, current_date, expiry_date, quantity, strike_price, bid_price):
     # Get day and week data from Supabase
     day_data, day_count = supabase.table('daily_trade_quantity').select("quantity").eq("sell_date", current_date.isoformat()).execute()
     week_data, week_count = supabase.table('weekly_trade_quantity').select("quantity").eq("week_num", current_date.week).execute()
