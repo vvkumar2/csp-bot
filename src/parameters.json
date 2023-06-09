@@ -2,7 +2,7 @@
     "sofi": {
         "symbol": "SOFI",
         "price_to_strike_diff": 0.08,
-        "max_strike": 6,
+        "max_strike": 6.0,
         "percent_change_threshold": -0.01,
         "target_bid_price": [
             0.05,

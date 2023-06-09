@@ -14,13 +14,13 @@ def get_underlying_price(ticker):
     return ticker_details.info['currentPrice']
 
 # Get stock details
-def get_stock_details(ticker, current_time, valid_exp_date):
+def get_stock_details(current_time, valid_exp_date, stock_info):
     # Get the ticker details
-    ticker_details = yf.Ticker(ticker)
+    ticker_details = yf.Ticker(stock_info["symbol"])
 
     # Get the current price and calculate the strike price
     price = ticker_details.info['currentPrice']
-    strike_price = min(round_price(price - PRICE_TO_STRIKE_DIFFERENCE), MAX_STRIKE_PRICE)
+    strike_price = min(round_price(price - stock_info["price_to_strike_diff"]), stock_info["max_strike"])
 
     # Get the open price from 30 minutes ago  
     if pd.Timestamp("06:30:00").time() <= current_time < pd.Timestamp("06:59:00").time():
