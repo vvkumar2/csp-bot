@@ -4,6 +4,26 @@ import pandas as pd
 # Calculate profit for each strike price and store in dictionary
 def calculate_profit(trade_data):
     profit_data = {}
+
+    # split trade_data up by unique symbol
+    symbols = []
+    for trade in trade_data:
+        symbol = trade['symbol']
+        if symbol not in symbols:
+            symbols.append(symbol)
+        
+    for symbol in symbols:
+        symbol_data = []
+        for trade in trade_data:
+            if trade['symbol'] == symbol:
+                symbol_data.append(trade)
+        profit_data[symbol] = calculate_profit_helper(symbol_data)
+
+    return profit_data
+
+# Helper function for calculate_profit
+def calculate_profit_helper(trade_data):
+    profit_data = {}
     total_quantity = 0
     collateral = 0
     average_bid = 0
@@ -31,39 +51,40 @@ def calculate_profit(trade_data):
 
     return profit_data, total_profit, average_bid, total_quantity, collateral
 
-# Get all trade information from database
-def get_all_trade_info():
-    try:
-        data = database.get_all_trade_info()
-        return data
-    except Exception as e:
-        print(f"Error retrieving trade information: {str(e)}")
-        return []
 
-# Calculate profit and send notification with total profit and quantity
+# Main function to calculate profit
 if __name__ == "__main__":
-    underlying_price = stock.get_underlying_price("SOFI")
-    trade_data = get_all_trade_info()
-    profit_data, total_profit, average_bid, total_quantity, collateral = calculate_profit(trade_data)
-    
-    message = f"You made ${total_profit:.2f} this week!\n\nDetails:\n"
+    # underlying_price = stock.get_underlying_price("SOFI")
+    trade_data = database.get_all_trade_info()
+    profit_data = calculate_profit(trade_data)
+    total_profit = 0
+    total_collateral = 0
+    message = ""
 
-    for strike in profit_data:
-        if strike > underlying_price:
-            message += f"Strike: ${strike:.2f}, Quantity: {profit_data[strike][1]}. ASSIGNED.\n"
-        else:
-            message += f"Strike: ${strike:.2f}, Quantity: {profit_data[strike][1]}, Profit: ${profit_data[strike][0]:.2f}\n"
+    # iterate through profit data to print each symbol's profit for each strike price
+    for symbol in profit_data:
+        total_profit += profit_data[symbol][1]
+        total_collateral += profit_data[symbol][4]
+        for key, value in profit_data[symbol][0].items():
+            message += f"{symbol} - Strike: {key}, Profit: {value[0]}, Quantity: {value[1]}\n"
+        print("\n")
+
+    message_prepend = f"You made ${total_profit:.2f} this week!\n\nDetails:\n"
+    message = message_prepend + message
+
+    print(message)
 
     # Add to database
     current_day = pd.Timestamp.today()
-    roi = round(total_profit / collateral * 100, 2)
-    if not database.add_weekly_profit_data(current_day, average_bid, total_quantity, total_profit, collateral, roi):
-        utils.write_error("Failed to add weekly profit data to database")
+    for symbol in profit_data:
+        roi = round(profit_data[symbol][1] / profit_data[symbol][4] * 100, 2)
+        if not database.add_weekly_profit_data(symbol, current_day, profit_data[symbol][2], profit_data[symbol][3], profit_data[symbol][1], profit_data[symbol][4], roi):
+            utils.write_error("\nFailed to add weekly profit data to database")
+            exit()
+    
+    # Send notification
+    if not notifications.send_notification(profit=True, message=message):
+        utils.write_error("\nFailed to send notification")
+        exit()
     else:
-        # Send notification
-        # if not notifications.send_notification(profit=True, message=message):
-        #     utils.write_error("Failed to send notification")
-        #     exit()
-        # else:
-        #     print (message)
-        print("Sent notification")
+        print("\nNotification sent successfully")

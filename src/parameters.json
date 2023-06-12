@@ -14,14 +14,14 @@
     },
     "marathon": {
         "symbol": "MARA",
-        "price_to_strike_diff": 0.08,
-        "max_strike": 9.5,
-        "percent_change_threshold": -0.02,
+        "price_to_strike_diff": 0.58,
+        "max_strike": 9,
+        "percent_change_threshold": -0.01,
         "target_bid_price": [
             0.10,
             0.08,
-            0.08,
             0.07,
+            0.06,
             0.06
         ]
     }

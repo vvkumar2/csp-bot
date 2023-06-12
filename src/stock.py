@@ -3,11 +3,6 @@ import pandas as pd
 import math
 import utils
 
-# Constants
-PRICE_TO_STRIKE_DIFFERENCE = 0.08
-MAX_STRIKE_PRICE = 5.5
-PERCENT_CHANGE_THRESHOLD = -0.01
-
 # Get stock price
 def get_underlying_price(ticker):
     ticker_details = yf.Ticker(ticker)
@@ -26,7 +21,7 @@ def get_stock_details(current_time, valid_exp_date, stock_info):
     if pd.Timestamp("06:30:00").time() <= current_time < pd.Timestamp("06:59:00").time():
         sofi_history = ticker_details.history(period="2d", interval="1d")
         last_close = sofi_history.iloc[-2]['Close']
-    elif pd.Timestamp("06:59:00").time() <= current_time < pd.Timestamp("12:00:00").time():
+    elif pd.Timestamp("06:59:00").time() <= current_time < pd.Timestamp("13:00:00").time():
         sofi_history = ticker_details.history(period="1d", interval="30m")
         last_close = sofi_history.iloc[-2]['Open']
     else:
@@ -80,13 +75,13 @@ def check_bid_price(day, bid, stock_info):
 # Calculate how many options to sell based on the day and bid price
 def calculate_options_amount(day, bid, percent_change, strike_price, stock_info):
     options_amounts = {
-        'Monday': 15 if percent_change <= stock_info["percent_change_threshold"] or bid >= stock_info["target_bid_price"][0]*1.15 and strike_price <= stock_info["max_strike"]*.9 else (10 if percent_change <= stock_info["percent_change_threshold"]/2 else 0),
+        'Monday': 10 if percent_change <= stock_info["percent_change_threshold"] or bid >= stock_info["target_bid_price"][0]*1.15 else (10 if percent_change <= stock_info["percent_change_threshold"]/2 else 0),
 
-        'Tuesday': 12 if percent_change <= stock_info["percent_change_threshold"] or bid >= stock_info["target_bid_price"][1]*1.15 and strike_price <= stock_info["max_strike"]*.9 else (5 if percent_change <= stock_info["percent_change_threshold"]/2 else 0),
+        'Tuesday': 8 if percent_change <= stock_info["percent_change_threshold"] or bid >= stock_info["target_bid_price"][1]*1.15 and strike_price <= stock_info["max_strike"]*.9 else (5 if percent_change <= stock_info["percent_change_threshold"]/2 else 0),
 
-        'Wednesday': 8 if percent_change <= stock_info["percent_change_threshold"] or bid >= stock_info["target_bid_price"][2]*1.15 and strike_price <= stock_info["max_strike"]*.9 else (5 if percent_change <= stock_info["percent_change_threshold"]/2 else 0),
+        'Wednesday': 6 if percent_change <= stock_info["percent_change_threshold"] or bid >= stock_info["target_bid_price"][2]*1.15 and strike_price <= stock_info["max_strike"]*.9 else (5 if percent_change <= stock_info["percent_change_threshold"]/2 else 0),
 
-        'Thursday': 5 if percent_change <= stock_info["percent_change_threshold"]/2 or bid >= stock_info["target_bid_price"][3]*1.15 and strike_price <= stock_info["max_strike"]*.9 else 0,
+        'Thursday': 3 if percent_change <= stock_info["percent_change_threshold"]/2 or bid >= stock_info["target_bid_price"][3]*1.15 and strike_price <= stock_info["max_strike"]*.9 else 0,
 
         'Friday': 3 if percent_change <= stock_info["percent_change_threshold"]/2 or bid >= stock_info["target_bid_price"][4]*1.15 and strike_price <= stock_info["max_strike"]*.9 else 0,
     }
