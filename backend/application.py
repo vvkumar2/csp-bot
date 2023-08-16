@@ -20,10 +20,10 @@ def get_recommendation():
     strategy = data['strategy']
 
     # Call your recommendation function
-    recommendation_engine.recommendation(stock_ticker, capital, target_delta, max_price, strategy)
+    data = recommendation_engine.recommendation(stock_ticker, capital, target_delta, max_price, strategy)
 
     # Return a JSON response
-    return jsonify({'message': 'Recommendation processed successfully'})
+    return jsonify({'message': 'Recommendation processed successfully', 'data': data})
 
 if __name__ == '__main__':
     application.run()

@@ -25,8 +25,11 @@ def recommendation (stock_ticker, capital, target_delta, max_price, strategy):
     # Print details of option (date, price, strike, bid, quantity)
     utils.write_selling_details(stock_ticker, expiration_date_pd, price, strike_price, bid_price, options_amount)
 
+    return stock_ticker, expiration_date_pd, price, strike_price, bid_price, options_amount
+
     # TODO: Add to database
 
-
+# Inputs are: stock ticker, capital, target delta, max price, strategy
+# I want to add: 
 if __name__ == "__main__":
-    recommendation("AAPL", 2000, .9, 190, "balanced")
+    recommendation("SOFI", 35000, .20, 9, "balanced")

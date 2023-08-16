@@ -5,16 +5,18 @@ import utils
 import dotenv
 import os
 
-
 dotenv.load_dotenv()
 TRADIER_API_KEY = os.getenv('TRADIER_API_KEY')
 
 def put_delta_select(data, current_price, target_delta, max_price):
+    highest_delta = 0
     selected_option = None
     for option in data['options']['option']:
-        if "Put" in option['description'] and (option['greeks']['delta']) >= -1*target_delta:
-            if (selected_option is None or option['greeks']['delta'] < selected_option['greeks']['delta']) and option['strike'] <= max_price and option['strike'] <= current_price:
-                selected_option = option
+        if ("Put" in option['description'] and -1*option['greeks']['delta'] < target_delta and 
+            -1*option['greeks']['delta'] >= highest_delta and option['strike'] <= max_price and 
+            option['strike'] <= current_price):
+            highest_delta = -1 * option['greeks']['delta']
+            selected_option = option
     return selected_option
 
 
@@ -53,11 +55,12 @@ def get_stock_details(valid_exp_date, stock_ticker, target_delta, max_price):
     if selected_option is None:
         utils.write_error("No Options Available for Selected Delta")
         exit()
+    # print(selected_option)
     
     bid_price = selected_option['bid']
     strike_price = selected_option['strike']
 
-    print(current_price, strike_price, bid_price, expiration_date)
+    # print(current_price, strike_price, bid_price, expiration_date)
     return current_price, strike_price, bid_price, expiration_date
     
 
@@ -78,7 +81,7 @@ def check_bid_price(current_date, bid_price, strike_price, strategy):
         "Friday": 4
     }
 
-    print (current_date, bid_ratio, bid_ratio_conditions[strategy][ratio_thresholds[current_date]])
+    # print (current_date, bid_ratio, bid_ratio_conditions[strategy][ratio_thresholds[current_date]])
 
     if current_date in ratio_thresholds:
         current_day_index = ratio_thresholds[current_date]
@@ -109,10 +112,10 @@ def calculate_options_amount(strike_price, capital, strategy):
 
 # Get current date details
 def get_date():
-    current_day = pd.Timestamp.today()
+    current_day = pd.Timestamp.today() + pd.Timedelta(days=1)
     current_date = current_day.day_name()
-    current_time = current_day.time()
-    valid_exp_date = current_day.date() + pd.Timedelta(days=5)
+    current_time = current_day.time() 
+    valid_exp_date = current_day.date() + pd.Timedelta(days=4)
 
     return current_day, current_date, current_time, valid_exp_date
 
