@@ -28,7 +28,7 @@ class _NavbarScreenState extends State<NavbarScreen> {
 
     switch (_selectedTabIndex) {
       case 0:
-        activeTab = const DashboardScreen();
+        activeTab = const LearningScreen();
         _activeTabName = 'Home';
         break;
       case 1:
@@ -47,7 +47,9 @@ class _NavbarScreenState extends State<NavbarScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_activeTabName),
+        backgroundColor: const Color.fromARGB(255, 8, 8, 8),
+        title: Text(_activeTabName,
+            style: const TextStyle(fontSize: 22, color: Colors.white)),
       ),
       body: activeTab,
       bottomNavigationBar: SalomonBottomBar(
@@ -58,21 +60,25 @@ class _NavbarScreenState extends State<NavbarScreen> {
           SalomonBottomBarItem(
             icon: const Icon(EvaIcons.homeOutline),
             title: const Text('Home'),
+            unselectedColor: Colors.white,
             selectedColor: const Color.fromARGB(255, 191, 33, 205),
           ),
           SalomonBottomBarItem(
             icon: const Icon(EvaIcons.briefcaseOutline),
             title: const Text('Stocks'),
+            unselectedColor: Colors.white,
             selectedColor: const Color.fromARGB(255, 241, 49, 183),
           ),
           SalomonBottomBarItem(
             icon: const Icon(EvaIcons.bookOutline),
             title: const Text('Learning'),
+            unselectedColor: Colors.white,
             selectedColor: const Color.fromARGB(255, 221, 34, 53),
           ),
           SalomonBottomBarItem(
             icon: const Icon(EvaIcons.personOutline),
             title: const Text('Profile'),
+            unselectedColor: Colors.white,
             selectedColor: const Color.fromARGB(255, 235, 126, 53),
           ),
         ],

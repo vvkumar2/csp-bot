@@ -24,6 +24,7 @@ class App extends StatelessWidget {
         title: 'PutProfit',
         theme: ThemeData().copyWith(
           useMaterial3: true,
+          scaffoldBackgroundColor: const Color.fromARGB(255, 8, 8, 8),
           colorScheme: ColorScheme.fromSeed(
             seedColor: Colors.purple,
           ),
