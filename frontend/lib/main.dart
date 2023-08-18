@@ -6,20 +6,23 @@ import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:frontend/screens/dashboard.dart';
 import 'package:frontend/screens/splash.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend/providers/user_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const App());
+  runApp(const ProviderScope(child: App()));
 }
 
-class App extends StatelessWidget {
+class App extends ConsumerWidget {
   const App({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userProvider);
     return MaterialApp(
         title: 'PutProfit',
         theme: ThemeData().copyWith(
@@ -36,6 +39,10 @@ class App extends StatelessWidget {
               return const SplashScreen();
             }
             if (userSnapshot.hasData) {
+              if (user == null) {
+                return const SplashScreen();
+              }
+              print(user.uid);
               return const NavbarScreen();
             }
             return const AuthScreen();

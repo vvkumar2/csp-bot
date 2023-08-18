@@ -5,10 +5,13 @@ class CustomButton extends StatelessWidget {
       {super.key,
       required this.onPressed,
       required this.text,
-      required this.bgColor,
-      required this.textColor});
+      required this.isActive,
+      this.bgColor = Colors.white,
+      this.textColor = Colors.black});
+
   final void Function() onPressed;
   final String text;
+  final bool isActive;
   final Color bgColor;
   final Color textColor;
 
@@ -17,8 +20,8 @@ class CustomButton extends StatelessWidget {
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
-        backgroundColor: bgColor,
-        foregroundColor: textColor,
+        backgroundColor: isActive ? Colors.purple : bgColor,
+        foregroundColor: isActive ? Colors.white : textColor,
         minimumSize: const Size(200, 42),
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         shape: const RoundedRectangleBorder(

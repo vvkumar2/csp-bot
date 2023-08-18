@@ -4,6 +4,7 @@ import 'package:frontend/screens/profile.dart';
 import 'package:frontend/screens/dashboard.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class NavbarScreen extends StatefulWidget {
   const NavbarScreen({super.key});
@@ -28,7 +29,7 @@ class _NavbarScreenState extends State<NavbarScreen> {
 
     switch (_selectedTabIndex) {
       case 0:
-        activeTab = const LearningScreen();
+        activeTab = const DashboardScreen();
         _activeTabName = 'Home';
         break;
       case 1:
@@ -46,11 +47,32 @@ class _NavbarScreenState extends State<NavbarScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 8, 8, 8),
-        title: Text(_activeTabName,
-            style: const TextStyle(fontSize: 22, color: Colors.white)),
-      ),
+      appBar: _activeTabName == 'Profile'
+          ? AppBar(
+              centerTitle: false,
+              backgroundColor: const Color.fromARGB(255, 8, 8, 8),
+              title: const Text("My Profile",
+                  style: TextStyle(fontSize: 22, color: Colors.white)),
+              actions: [
+                IconButton(
+                    onPressed: () async {
+                      try {
+                        // Sign out from Firebase Auth
+                        await FirebaseAuth.instance.signOut();
+                      } catch (error) {
+                        // Provide feedback to the user
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error signing out: $error')),
+                        );
+                      }
+                    },
+                    icon: Icon(
+                      EvaIcons.logOutOutline,
+                      color: Theme.of(context).colorScheme.primary,
+                    ))
+              ],
+            )
+          : null,
       body: activeTab,
       bottomNavigationBar: SalomonBottomBar(
         margin: const EdgeInsets.all(40),

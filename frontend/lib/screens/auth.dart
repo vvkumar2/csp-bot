@@ -26,7 +26,14 @@ class _AuthScreenState extends State<AuthScreen> {
   void _submit() async {
     final isValid = _formKey.currentState!.validate();
 
-    if (!isValid || !_isLogin && _userImageFile == null) {
+    if (!isValid) {
+      return;
+    }
+    if (_userImageFile == null && !_isLogin) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Please pick an image!'),
+          backgroundColor: Theme.of(context).colorScheme.error));
       return;
     }
 
