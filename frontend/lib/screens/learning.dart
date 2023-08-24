@@ -22,7 +22,7 @@ class _LearningScreenState extends State<LearningScreen>
     _controller = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
-    )..repeat(reverse: true);
+    );
 
     final curvedAnimation = CurvedAnimation(
       parent: _controller,
@@ -58,6 +58,10 @@ class _LearningScreenState extends State<LearningScreen>
     });
   }
 
+  void startArrowAnimation() {
+    _controller.forward().then((_) => _controller.reverse());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -80,7 +84,7 @@ class _LearningScreenState extends State<LearningScreen>
             itemBuilder: (context, index) {
               if (index == 0) {
                 return _buildTagPage(_topicsList, _activeTopic, setTopicStream,
-                    _animation, context);
+                    _animation, startArrowAnimation, context);
               }
               return _buildSlidePage(slides[index - 1]);
             },
@@ -89,169 +93,168 @@ class _LearningScreenState extends State<LearningScreen>
       ),
     );
   }
-}
 
-_buildSlidePage(Map<String, dynamic> slide) {
-  return Container(
-    padding: const EdgeInsets.only(top: 30, bottom: 60, left: 20, right: 20),
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            slide['headline'],
-            style: GoogleFonts.montserrat(
-              fontSize: 50,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+  _buildSlidePage(Map<String, dynamic> slide) {
+    return Container(
+      padding: const EdgeInsets.only(top: 30, bottom: 60, left: 20, right: 20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              slide['headline'],
+              style: GoogleFonts.montserrat(
+                fontSize: 50,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
           ),
-        ),
-        Center(
-          child: Image.asset(
-            slide['graphic'] ?? 'assets/images/test.png',
-          ),
-        ),
-        Container(
-          padding: const EdgeInsets.only(left: 10, right: 10),
-          alignment: Alignment.center,
-          child: Text(
-            slide['information'],
-            textAlign: TextAlign.center,
-            style: GoogleFonts.montserrat(
-              fontSize: 18,
-              color: Colors.white,
+          Center(
+            child: Image.asset(
+              slide['graphic'] ?? 'assets/images/test.png',
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+          Container(
+            padding: const EdgeInsets.only(left: 10, right: 10),
+            alignment: Alignment.center,
+            child: Text(
+              slide['information'],
+              textAlign: TextAlign.center,
+              style: GoogleFonts.montserrat(
+                fontSize: 18,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-_buildTagPage(
-    List<String> topicsList,
-    String activeTopic,
-    void Function(String) setTopicStream,
-    Animation<double> animation,
-    BuildContext context) {
-  return Container(
-    padding: const EdgeInsets.only(top: 30, bottom: 30, left: 20, right: 20),
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Center(
-          child: Column(
-            children: [
-              Container(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Learn',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 58,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              Container(
-                alignment: Alignment.center,
-                child: Text(
-                  'Something',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 58,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              Container(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  'New',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 58,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 36),
-        Padding(
-          padding: const EdgeInsets.only(left: 14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(0.0, 12.0, 0.0, 0.0),
-                child: Text('TOPICS',
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold)),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: topicsList
-                    .map((topic) => CustomButton(
-                          onPressed: () => setTopicStream(topic),
-                          text: topic,
-                          isActive: activeTopic == topic,
-                        ))
-                    .toList(),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              margin: const EdgeInsets.only(right: 16),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Swipe to Learn',
+  _buildTagPage(
+      List<String> topicsList,
+      String activeTopic,
+      void Function(String) setTopicStream,
+      Animation<double> animation,
+      void Function() startArrowAnimation,
+      BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(top: 30, bottom: 30, left: 20, right: 20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Column(
+              children: [
+                Container(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Learn',
                     style: GoogleFonts.montserrat(
-                      fontSize: 18,
+                      fontSize: 58,
+                      fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
-                  // AnimatedBuilder(
-                  //   animation: animation,
-                  //   builder: (context, child) {
-                  //     return Transform.translate(
-                  //       offset: Offset(-1 * animation.value, 0),
-                  //       child: child,
-                  //     );
-                  //   },
-                  //   child: const Icon(
-                  //     Icons.arrow_forward,
-                  //     color: Colors.white,
-                  //     size: 24,
-                  //   ),
-                  // ),
-                  const Icon(
-                    Icons.arrow_forward,
-                    color: Colors.white,
-                    size: 24,
+                ),
+                Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Something',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 58,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
-                ],
+                ),
+                Container(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    'New',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 58,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 36),
+          Padding(
+            padding: const EdgeInsets.only(left: 14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(0.0, 12.0, 0.0, 0.0),
+                  child: Text('CHOOSE A TOPIC',
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: topicsList
+                      .map((topic) => CustomButton(
+                            onPressed: () {
+                              setTopicStream(topic);
+                              startArrowAnimation();
+                            },
+                            text: topic,
+                            isActive: activeTopic == topic,
+                          ))
+                      .toList(),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                margin: const EdgeInsets.only(right: 16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Swipe to Learn',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                    AnimatedBuilder(
+                      animation: animation,
+                      builder: (context, child) {
+                        return Transform.translate(
+                          offset: Offset(-1 * animation.value, 0),
+                          child: child,
+                        );
+                      },
+                      child: const Icon(
+                        Icons.arrow_forward,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }

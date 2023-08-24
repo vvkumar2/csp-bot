@@ -19,11 +19,11 @@ class NavbarScreen extends ConsumerStatefulWidget {
 
 class _NavbarScreenState extends ConsumerState<NavbarScreen> {
   int _selectedTabIndex = 0;
-  String _activeTabName = 'Dashboard';
+  String _activeTabName = 'Home';
   FocusNode _searchFocusNode = FocusNode();
   TextEditingController _searchController = TextEditingController();
   Widget _customTitle = const Text(
-    'Stocks',
+    'Add to Watchlist',
     style: TextStyle(
       color: Colors.white,
       fontSize: 22,
@@ -69,7 +69,9 @@ class _NavbarScreenState extends ConsumerState<NavbarScreen> {
           ? buildProfileAppBar()
           : _activeTabName == 'Stocks'
               ? buildStocksAppBar()
-              : null,
+              : _activeTabName == 'Home'
+                  ? buildDashboardAppBar()
+                  : null,
       body: activeTab,
       bottomNavigationBar: SalomonBottomBar(
         margin: const EdgeInsets.all(40),
@@ -105,11 +107,20 @@ class _NavbarScreenState extends ConsumerState<NavbarScreen> {
     );
   }
 
+  PreferredSizeWidget? buildDashboardAppBar() {
+    return AppBar(
+      centerTitle: false,
+      backgroundColor: const Color.fromARGB(255, 8, 8, 8),
+      title: const Text("Dashboard",
+          style: TextStyle(fontSize: 22, color: Colors.white)),
+    );
+  }
+
   PreferredSizeWidget? buildProfileAppBar() {
     return AppBar(
       centerTitle: false,
       backgroundColor: const Color.fromARGB(255, 8, 8, 8),
-      title: const Text("My Profile",
+      title: const Text("Profile",
           style: TextStyle(fontSize: 22, color: Colors.white)),
       actions: [
         IconButton(
