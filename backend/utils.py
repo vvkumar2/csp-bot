@@ -1,13 +1,33 @@
 import requests
 import pandas as pd
 import math
-import utils
+import logging
 import dotenv
 import os
 
+# Setup logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Load environment variables
 dotenv.load_dotenv()
 TRADIER_API_KEY = os.getenv('TRADIER_API_KEY')
+if not TRADIER_API_KEY:
+    logging.error("TRADIER_API_KEY not found in environment variables.")
+    exit(1)
 
+
+# Get stock details
+def request_handler(url, params={}, headers={}):
+    try:
+        response = requests.get(url, params=params, headers=headers)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        logging.error(f"Error fetching data from {url}: {e}")
+        return None
+
+
+# Select the option with the highest delta
 def put_delta_select(data, current_price, target_delta, max_price):
     highest_delta = 0
     selected_option = None
@@ -20,50 +40,63 @@ def put_delta_select(data, current_price, target_delta, max_price):
     return selected_option
 
 
-def get_stock_details(valid_exp_date, stock_ticker, target_delta, max_price):
+# Get stock details
+def fetch_stock_details(valid_exp_date, stock_ticker, target_delta, max_price):
+    headers = {
+        'Authorization': f'Bearer {TRADIER_API_KEY}',
+        'Accept': 'application/json'
+    }
+
     # Get the current price
-    response = requests.get('https://api.tradier.com/v1/markets/quotes',
-        params={'symbols': f'{stock_ticker}', 'greeks': 'false'},
-        headers={'Authorization': f'Bearer {TRADIER_API_KEY}', 'Accept': 'application/json'}
-    )
-    json_response = response.json()
-    current_price = json_response['quotes']['quote']['last']
+    response = request_handler('https://api.tradier.com/v1/markets/quotes',
+        params={'symbols': stock_ticker, 'greeks': 'false'},
+        headers=headers)
+
+    if not response or 'quotes' not in response or 'quote' not in response['quotes']:
+        logging.error(f"Unexpected JSON structure in response for current price: {response}")
+        return None
+
+    current_price = response['quotes']['quote']['last']
 
     # Get the expiration date
-    response = requests.get('https://api.tradier.com/v1/markets/options/expirations',
-        params={'symbol': f'{stock_ticker}', 'includeAllRoots': 'true', 'strikes': 'true'},
-        headers={'Authorization': f'Bearer {TRADIER_API_KEY}', 'Accept': 'application/json'}
-    )
-    json_response = response.json()
-    expiration_dates = json_response['expirations']['expiration']
-    expiration_date = pd.to_datetime(expiration_dates[0]['date']).date()
-    print(expiration_date)
+    response = request_handler('https://api.tradier.com/v1/markets/options/expirations',
+        params={'symbol': stock_ticker, 'includeAllRoots': 'true', 'strikes': 'true'},
+        headers=headers)
 
-    # Check if the expiration date is valid
-    if expiration_date > valid_exp_date:
-        utils.write_error("Invalid Expiration Date")
-        exit()
+    if not response or 'expirations' not in response or 'expiration' not in response['expirations']:
+        logging.error(f"Unexpected JSON structure in response for expiration dates: {response}")
+        return None
+
+    expiration_dates = response['expirations']['expiration']
+    expiration_date = pd.to_datetime(expiration_dates[0]['date']).date()
+
+    if not (valid_exp_date[0] <= expiration_date <= valid_exp_date[1]):
+        logging.info(f"Expiration Date: {expiration_date}")
+        logging.info(f"Range: {valid_exp_date[0]} - {valid_exp_date[1]}")
+        logging.error("Invalid Expiration Date")
+        return None
 
     # Calculate the strike price based on the delta
-    response = requests.get('https://api.tradier.com/v1/markets/options/chains',
-        params={'symbol': f'{stock_ticker}', 'expiration': f'{expiration_date}', 'greeks': 'true'},
-        headers={'Authorization': f'Bearer {TRADIER_API_KEY}', 'Accept': 'application/json'}
-    )
-    json_response = response.json()
+    response = request_handler('https://api.tradier.com/v1/markets/options/chains',
+        params={'symbol': stock_ticker, 'expiration': expiration_date, 'greeks': 'true'},
+        headers=headers)
 
-    selected_option = put_delta_select(json_response, current_price, target_delta, max_price)
-    if selected_option is None:
-        utils.write_error("No Options Available for Selected Delta")
-        exit()
-    # print(selected_option)
-    
+    if not response or 'options' not in response or 'option' not in response['options']:
+        logging.error(f"Unexpected JSON structure in response for option chains: {response}")
+        return None
+
+    selected_option = put_delta_select(response, current_price, target_delta, max_price)
+    if not selected_option:
+        logging.error("No Options Available for Selected Delta")
+        return None
+
     bid_price = selected_option['bid']
     strike_price = selected_option['strike']
 
-    # print(current_price, strike_price, bid_price, expiration_date)
     return current_price, strike_price, bid_price, expiration_date
     
 
+# Check if the bid price is within the threshold
 def check_bid_price(current_date, bid_price, strike_price, strategy):
     bid_ratio = (bid_price * 100) / strike_price
     
@@ -81,62 +114,72 @@ def check_bid_price(current_date, bid_price, strike_price, strategy):
         "Friday": 4
     }
 
-    # print (current_date, bid_ratio, bid_ratio_conditions[strategy][ratio_thresholds[current_date]])
-
-    if current_date in ratio_thresholds:
-        current_day_index = ratio_thresholds[current_date]
-        if bid_ratio >= bid_ratio_conditions[strategy][current_day_index]:
-            # Bid price meets the condition
-            return 0
-        else:
-            # Bid price does not meet the condition
-            return 1
-    else:
-        # Invalid date
+    if current_date not in ratio_thresholds:
+        logging.error(f"Invalid date: {current_date}. Expected one of {', '.join(ratio_thresholds.keys())}.")
         return 2
 
+    current_day_index = ratio_thresholds[current_date]
+    if bid_ratio >= bid_ratio_conditions.get(strategy, [])[current_day_index]:
+        return 0
+    else:
+        return 1
+    
 
-def calculate_options_amount(strike_price, capital, strategy):
-    # Adjust capital based on strategy
-    if strategy == "aggressive":
-        adjusted_capital = capital
-    elif strategy == "balanced":
-        adjusted_capital = capital * 0.8
-    elif strategy == "conservative":
-        adjusted_capital = capital * 0.6
+# Multiplier for capital based on strategy
+def determine_option_quantity(strike_price, capital, strategy):
+    strategy_multiplier = {
+        "aggressive": 1,
+        "balanced": 0.8,
+        "conservative": 0.6
+    }
 
-    # Calculate the normalized quantity
+    multiplier = strategy_multiplier.get(strategy)
+    if not multiplier:
+        logging.error(f"Invalid strategy: {strategy}. Expected one of {', '.join(strategy_multiplier.keys())}.")
+        return 0
+
+    adjusted_capital = capital * multiplier
     normalized_quantity = adjusted_capital / (strike_price * 100)
     return math.floor(normalized_quantity)
 
 
 # Get current date details
-def get_date():
-    current_day = pd.Timestamp.today() + pd.Timedelta(days=1)
-    current_date = current_day.day_name()
-    current_time = current_day.time() 
-    valid_exp_date = current_day.date() + pd.Timedelta(days=4)
+def get_current_date():
+    try:
+        current_day = pd.Timestamp.today()
+        current_date = current_day.day_name()
+        valid_exp_date = (current_day.date() + pd.Timedelta(days=1), current_day.date() + pd.Timedelta(days=7))
 
-    return current_day, current_date, current_time, valid_exp_date
+        return current_date, valid_exp_date
+    except Exception as e:
+        logging.error(f"Error fetching date details: {e}")
+        return None, None
 
-# Write to output
-def write_stock_details(symbol, stock_price, strike_price, bid_price, expiration_date_pd, percent_change):
-    print(f"\nCURRENT DETAILS: {symbol}")
-    print("----------------------------")
-    print(f"Current Price: {stock_price}")
-    print(f"Strike Price: {strike_price}")
-    print(f"Bid Price: {bid_price}")
-    print(f"Expiration Date: {expiration_date_pd}")
-    print(f"Percent Change: {percent_change}\n")
 
-def write_selling_details(symbol, expiration_date_pd, price, strike_price, bid_price, options_amount):
-    print(f"\nSELLING DETAILS: {symbol}")
-    print("----------------------------")
-    print(f"Expiration Date: {expiration_date_pd}")
-    print(f"Share Price: {price}")
-    print(f"Strike Price: {strike_price}")
-    print(f"Bid Price: {bid_price}")
-    print(f"Amount: {options_amount}\n")
+# Write details to log
+def log_stock_details(symbol, stock_price, strike_price, bid_price, expiration_date_pd, percent_change):
+    logging.info(f"""
+    CURRENT DETAILS: {symbol}
+    ----------------------------
+    Current Price: {stock_price}
+    Strike Price: {strike_price}
+    Bid Price: {bid_price}
+    Expiration Date: {expiration_date_pd}
+    Percent Change: {percent_change}
+    """)
 
-def write_error(error):
-    print(f"ERROR: {error}")
+# Write details to log
+def log_selling_details(symbol, expiration_date_pd, price, strike_price, bid_price, options_amount):
+    logging.info(f"""
+    SELLING DETAILS: {symbol}
+    ----------------------------
+    Expiration Date: {expiration_date_pd}
+    Share Price: {price}
+    Strike Price: {strike_price}
+    Bid Price: {bid_price}
+    Amount: {options_amount}
+    """)
+
+# Write details to log
+def log_error(error):
+    logging.error(f"ERROR: {error}")

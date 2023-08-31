@@ -1,15 +1,20 @@
 import requests
-import firebase_admin
-from firebase_admin import credentials, firestore
+import logging
+import db_operations
+
+logging.basicConfig(level=logging.INFO)
 
 # Initialize Firebase Admin SDK
-cred = credentials.Certificate('./put-mate-firebase-key.json')
-firebase_admin.initialize_app(cred)
-db = firestore.client()
+db = db_operations.initialize_firestore()
+if db is None:
+    logging.error("Failed to initialize Firestore database. Exiting...")
+    exit()
 
 # Fetch stocks from Firestore
-users_ref = db.collection('users')
-users = users_ref.get()
+users = db_operations.fetch_users_from_firestore(db)
+if users is None:
+    logging.error("Failed to fetch user data. Exiting...")
+    exit()
 
 for user in users:
     user_data = user.to_dict()
@@ -25,28 +30,18 @@ for user in users:
             'capital': float(stock['max_holdings']),
             'max_price': float(stock['max_price']),
             'strategy': stock['strategy'].lower()
-            # ... add other necessary fields
         }
 
-        
         # Send POST request to Flask server
         try:
-            print('Sending POST request: ' + str(data) + '\n')
+            logging.info(f"Sending POST request: {data}")
             response = requests.post('http://trading-env.eba-pyibygm7.us-east-2.elasticbeanstalk.com/recommendation', json=data)
-            print(response.json())
+            response_data = response.json()
+            if response.status_code == 200:
+                logging.info(response_data)
+            else:
+                logging.warning(f"Received non-200 status code: {response.status_code}. Response: {response_data}")
+        except requests.RequestException as req_err:
+            logging.error(f"Error sending POST request: {req_err}")
         except Exception as e:
-            print('Error sending POST request')
-            print(e)
-
-        
-        
-        # Update Firestore with the recommendation
-        # This step depends on how you want to store the recommendation in Firestore.
-        # For this example, I'm assuming you want to add a 'recommendation' field to each stock in stock_list.
-        # stock['recommendation'] = recommendation['data']
-
-    # Update the user's stock_list in Firestore
-    # user_ref = users_ref.document(user.id)
-    # user_ref.update({
-    #     'stock_list': stock_list
-    # })
+            logging.error(f"Unexpected error: {e}")
