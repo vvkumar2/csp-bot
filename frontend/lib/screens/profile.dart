@@ -141,17 +141,19 @@ class ProfileScreen extends ConsumerWidget {
                           )),
                           DataCell(Align(
                             alignment: Alignment.centerRight,
-                            child: Text(stock.delta.toString(),
+                            child: Text(stock.delta.toStringAsFixed(2),
                                 style: const TextStyle(color: Colors.white)),
                           )),
                           DataCell(Align(
                             alignment: Alignment.centerRight,
-                            child: Text(stock.maxPrice.toString(),
+                            child: Text(
+                                '\$${stock.maxPrice.toStringAsFixed(2)}',
                                 style: const TextStyle(color: Colors.white)),
                           )),
                           DataCell(Align(
                             alignment: Alignment.centerRight,
-                            child: Text(stock.maxHoldings.toString(),
+                            child: Text(
+                                '\$${stock.maxHoldings.toStringAsFixed(0)}',
                                 style: const TextStyle(color: Colors.white)),
                           )),
                           DataCell(Align(

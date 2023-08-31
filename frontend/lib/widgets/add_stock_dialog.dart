@@ -28,12 +28,15 @@ class AddStockDialog extends ConsumerWidget {
     String? strategyInput;
 
     return AlertDialog(
+      backgroundColor: Colors.grey.shade100,
       title: SizedBox(
         height: 45,
         width: double.infinity,
         child: Text(
           stock.company,
           textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
       ),
       content: SingleChildScrollView(
@@ -52,7 +55,12 @@ class AddStockDialog extends ConsumerWidget {
                 child: TextFormField(
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
-                    deltaInput = value;
+                    double? val = double.tryParse(value);
+                    if (val != null) {
+                      deltaInput = val.toStringAsFixed(2);
+                    } else {
+                      deltaInput = value;
+                    }
                   },
                   validator: (value) {
                     double? val = double.tryParse(value ?? '');
@@ -74,7 +82,13 @@ class AddStockDialog extends ConsumerWidget {
                 child: TextFormField(
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
-                    maxHoldingsInput = value;
+                    double? val = double.tryParse(value);
+                    if (val != null) {
+                      maxHoldingsInput = val.toStringAsFixed(2);
+                    } else {
+                      maxHoldingsInput =
+                          value; // Keeping the original string if it's not valid
+                    }
                   },
                   validator: (value) {
                     double? val = double.tryParse(value ?? '');
@@ -96,7 +110,13 @@ class AddStockDialog extends ConsumerWidget {
                 child: TextFormField(
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
-                    maxPriceInput = value;
+                    double? val = double.tryParse(value);
+                    if (val != null) {
+                      maxPriceInput = val.toStringAsFixed(2);
+                    } else {
+                      maxPriceInput =
+                          value; // Keeping the original string if it's not valid
+                    }
                   },
                   validator: (value) {
                     double? val = double.tryParse(value ?? '');

@@ -9,3 +9,6 @@ venv/
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
 .ebextensions/
+
+# Key files
+put-mate-firebase-key.json

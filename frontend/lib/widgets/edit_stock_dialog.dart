@@ -144,8 +144,7 @@ class EditStockDialog extends ConsumerWidget {
                   maxHoldingsInput!, maxPriceInput!, strategyInput!, ref);
 
               final snackBar = SnackBar(
-                content:
-                    Text('You have added ${stock.company} to your watchlist'),
+                content: Text('You have successfully edited ${stock.company}'),
                 backgroundColor: Colors.purple,
                 duration: const Duration(seconds: 2),
               );

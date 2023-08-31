@@ -25,7 +25,16 @@ def recommendation (stock_ticker, capital, target_delta, max_price, strategy):
     # Print details of option (date, price, strike, bid, quantity)
     utils.write_selling_details(stock_ticker, expiration_date_pd, price, strike_price, bid_price, options_amount)
 
-    return stock_ticker, expiration_date_pd, price, strike_price, bid_price, options_amount
+    new_recommendation = {
+        "bid_price": bid_price,
+        "delta": target_delta,
+        "expiry_date": expiration_date_pd.strftime('%B %d, %Y at 12:00:00 AM UTC-4'),
+        "option_quantity": str(options_amount),
+        "strike_price": strike_price,
+        "ticker": stock_ticker
+    }
+
+    return new_recommendation
 
     # TODO: Add to database
 

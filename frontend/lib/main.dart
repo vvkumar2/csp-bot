@@ -42,7 +42,6 @@ class App extends ConsumerWidget {
               if (user == null) {
                 return const SplashScreen();
               }
-              print(user.uid);
               return const NavbarScreen();
             }
             return const AuthScreen();

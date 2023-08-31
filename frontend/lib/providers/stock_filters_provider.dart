@@ -8,6 +8,8 @@ final kInitialFilters = {
   Filter.search: '',
 };
 
+enum SortOption { ticker, priceInc, volumeDec, oneDayChangeInc }
+
 class FiltersNotifiter extends StateNotifier<Map<Filter, dynamic>> {
   FiltersNotifiter() : super(kInitialFilters);
 
@@ -37,8 +39,26 @@ final filteredStockProvider = Provider<List<Stock>>((ref) {
   final filters = ref.watch(filtersProvider);
   final search = filters[Filter.search] as String;
 
-  return stocks.where((stock) {
-    return stock.ticker.toLowerCase().contains(search.toLowerCase()) ||
-        stock.company.toLowerCase().contains(search.toLowerCase());
-  }).toList();
+  return stocks.maybeWhen(
+    data: (stocks) {
+      return stocks.where((stock) {
+        return stock.ticker.toLowerCase().contains(search.toLowerCase()) ||
+            stock.company.toLowerCase().contains(search.toLowerCase());
+      }).toList();
+    },
+    loading: () {
+      print('Loading');
+      return List.empty();
+    }, // You can return null or a placeholder list for loading
+    error: (_, __) {
+      print(_);
+      return List.empty();
+    },
+    orElse: () {
+      print('Or else');
+      return List.empty();
+    },
+  );
+
+  // }
 });

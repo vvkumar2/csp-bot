@@ -9,6 +9,8 @@ import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:frontend/providers/stock_filters_provider.dart';
+import 'package:frontend/providers/tab_provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class NavbarScreen extends ConsumerStatefulWidget {
   const NavbarScreen({super.key});
@@ -18,30 +20,36 @@ class NavbarScreen extends ConsumerStatefulWidget {
 }
 
 class _NavbarScreenState extends ConsumerState<NavbarScreen> {
-  int _selectedTabIndex = 0;
   String _activeTabName = 'Home';
   FocusNode _searchFocusNode = FocusNode();
   TextEditingController _searchController = TextEditingController();
-  Widget _customTitle = const Text(
+  Widget _customTitle = Text(
     'Add to Watchlist',
-    style: TextStyle(
-      color: Colors.white,
-      fontSize: 22,
-    ),
+    style: GoogleFonts.poppins(
+        fontSize: 28,
+        color: Colors.white,
+        fontWeight: FontWeight.w500,
+        letterSpacing: 0),
   );
   Icon _customIcon = const Icon(
     EvaIcons.searchOutline,
-    color: Colors.purple,
+    color: Colors.white,
   );
+  final List<Widget> _tabs = [
+    const DashboardScreen(),
+    const StockScreen(),
+    const LearningScreen(),
+    const ProfileScreen(),
+  ];
 
   void _selectTab(int index) {
-    setState(() {
-      _selectedTabIndex = index;
-    });
+    // Use context.read to update the value of the selectedTabIndexProvider.
+    ref.read(selectedTabIndexProvider.notifier).state = index;
   }
 
   @override
   Widget build(BuildContext context) {
+    final _selectedTabIndex = ref.watch(selectedTabIndexProvider);
     final filters = ref.watch(filtersProvider);
     Widget activeTab = const DashboardScreen();
 
@@ -80,25 +88,25 @@ class _NavbarScreenState extends ConsumerState<NavbarScreen> {
         items: [
           SalomonBottomBarItem(
             icon: const Icon(EvaIcons.homeOutline),
-            title: const Text('Home'),
+            title: Text('Home', style: GoogleFonts.poppins()),
             unselectedColor: Colors.white,
             selectedColor: const Color.fromARGB(255, 191, 33, 205),
           ),
           SalomonBottomBarItem(
             icon: const Icon(EvaIcons.briefcaseOutline),
-            title: const Text('Stocks'),
+            title: Text('Stocks', style: GoogleFonts.poppins()),
             unselectedColor: Colors.white,
             selectedColor: const Color.fromARGB(255, 241, 49, 183),
           ),
           SalomonBottomBarItem(
             icon: const Icon(EvaIcons.bookOutline),
-            title: const Text('Learning'),
+            title: Text('Learning', style: GoogleFonts.poppins()),
             unselectedColor: Colors.white,
             selectedColor: const Color.fromARGB(255, 221, 34, 53),
           ),
           SalomonBottomBarItem(
             icon: const Icon(EvaIcons.personOutline),
-            title: const Text('Profile'),
+            title: Text('Profile', style: GoogleFonts.poppins()),
             unselectedColor: Colors.white,
             selectedColor: const Color.fromARGB(255, 235, 126, 53),
           ),
@@ -111,8 +119,12 @@ class _NavbarScreenState extends ConsumerState<NavbarScreen> {
     return AppBar(
       centerTitle: false,
       backgroundColor: const Color.fromARGB(255, 8, 8, 8),
-      title: const Text("Dashboard",
-          style: TextStyle(fontSize: 22, color: Colors.white)),
+      title: Text("Dashboard",
+          style: GoogleFonts.poppins(
+              fontSize: 28,
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+              letterSpacing: 0)),
     );
   }
 
@@ -120,8 +132,12 @@ class _NavbarScreenState extends ConsumerState<NavbarScreen> {
     return AppBar(
       centerTitle: false,
       backgroundColor: const Color.fromARGB(255, 8, 8, 8),
-      title: const Text("Profile",
-          style: TextStyle(fontSize: 22, color: Colors.white)),
+      title: Text("Profile",
+          style: GoogleFonts.poppins(
+              fontSize: 28,
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+              letterSpacing: 0)),
       actions: [
         IconButton(
             onPressed: () async {
@@ -135,9 +151,9 @@ class _NavbarScreenState extends ConsumerState<NavbarScreen> {
                 );
               }
             },
-            icon: Icon(
+            icon: const Icon(
               EvaIcons.logOutOutline,
-              color: Theme.of(context).colorScheme.primary,
+              color: Colors.white,
             ))
       ],
     );
@@ -180,21 +196,22 @@ class _NavbarScreenState extends ConsumerState<NavbarScreen> {
                     ),
                     style: const TextStyle(color: Colors.white, fontSize: 16),
                   );
-                  _customIcon = Icon(
+                  _customIcon = const Icon(
                     EvaIcons.closeCircleOutline,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: Colors.white,
                   );
                 } else {
-                  _customTitle = const Text(
-                    'Stocks',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                    ),
+                  _customTitle = Text(
+                    'Add to Watchlist',
+                    style: GoogleFonts.poppins(
+                        fontSize: 28,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0),
                   );
-                  _customIcon = Icon(
+                  _customIcon = const Icon(
                     EvaIcons.searchOutline,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: Colors.white,
                   );
                   // Clear the TextField and reset the filters
                   _searchController.clear();

@@ -12,20 +12,49 @@ class LearningScreen extends StatefulWidget {
 
 class _LearningScreenState extends State<LearningScreen>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
+  // Variable declarations
+  final PageController _pageController = PageController(viewportFraction: 0.9);
+  int _currentPageIndex = 0;
+  String _activeTopic = 'Cash-Secured Basics';
+  int _activeTopicIndex = 0;
+
+  final CollectionReference collection =
+      FirebaseFirestore.instance.collection('learning');
+  Stream? _slidesStream = FirebaseFirestore.instance
+      .collection('learning')
+      .where('topicName', isEqualTo: 'Cash-Secured Basics')
+      .snapshots();
+  final List<String> _topicsList = [
+    'Cash-Secured Basics',
+    'Risk vs. Reward',
+    'Stocks & Strikes',
+    'Advanced Strategies'
+  ];
+
+  late AnimationController _animationController;
   late Animation<double> _animation;
 
+  // Lifecycle methods
   @override
   void initState() {
     super.initState();
 
-    _controller = AnimationController(
+    _pageController.addListener(() {
+      int next = _pageController.page!.round();
+      if (_currentPageIndex != next) {
+        setState(() {
+          _currentPageIndex = next;
+        });
+      }
+    });
+
+    _animationController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
 
     final curvedAnimation = CurvedAnimation(
-      parent: _controller,
+      parent: _animationController,
       curve: Curves.easeInOutCubic, // Smoother curve
     );
 
@@ -34,24 +63,13 @@ class _LearningScreenState extends State<LearningScreen>
 
   @override
   void dispose() {
-    _controller.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
-  final CollectionReference collection =
-      FirebaseFirestore.instance.collection('learning');
-  Stream _slidesStream =
-      FirebaseFirestore.instance.collection('learning').snapshots();
-  String _activeTopic = 'Cash-Secured Basics';
-  final List<String> _topicsList = [
-    'Cash-Secured Basics',
-    'Risk vs. Reward',
-    'Stocks & Strikes',
-    'Advanced Strategies'
-  ];
-
   void setTopicStream(String topic) {
     setState(() {
+      _activeTopicIndex = _topicsList.indexOf(topic);
       _activeTopic = topic;
       _slidesStream =
           collection.where('topicName', isEqualTo: topic).snapshots();
@@ -59,7 +77,7 @@ class _LearningScreenState extends State<LearningScreen>
   }
 
   void startArrowAnimation() {
-    _controller.forward().then((_) => _controller.reverse());
+    _animationController.forward().then((_) => _animationController.reverse());
   }
 
   @override
@@ -80,13 +98,18 @@ class _LearningScreenState extends State<LearningScreen>
           List<dynamic> slides = docs[0]['slides'];
 
           return PageView.builder(
+            controller: _pageController,
             itemCount: slides.length + 1,
             itemBuilder: (context, index) {
               if (index == 0) {
                 return _buildTagPage(_topicsList, _activeTopic, setTopicStream,
                     _animation, startArrowAnimation, context);
               }
-              return _buildSlidePage(slides[index - 1]);
+              return _buildSlidePage(
+                slides[index - 1],
+                index == _currentPageIndex,
+                _currentPageIndex,
+              );
             },
           );
         },
@@ -94,41 +117,80 @@ class _LearningScreenState extends State<LearningScreen>
     );
   }
 
-  _buildSlidePage(Map<String, dynamic> slide) {
-    return Container(
-      padding: const EdgeInsets.only(top: 30, bottom: 60, left: 20, right: 20),
+  _buildSlidePage(Map<String, dynamic> slide, bool active, int index) {
+    final double top = active ? 75 : 150;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeOutQuint,
+      margin: EdgeInsets.only(top: top, bottom: 30, right: 10, left: 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Color.fromRGBO(31, 25, 31, 0.6 - _activeTopicIndex * 0.4),
+        boxShadow: [
+          BoxShadow(
+            color: const Color.fromARGB(255, 21, 21, 21).withOpacity(0.1),
+            spreadRadius: 8,
+            blurRadius: 8,
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(28.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              slide['headline'],
-              style: GoogleFonts.montserrat(
-                fontSize: 50,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+          Expanded(
+            child: Column(
+              children: [
+                Expanded(
+                  child: Center(
+                    child: Image.network(
+                      slide['graphic'] ?? "https://picsum.photos/200/300",
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 48),
+                Center(
+                  child: Text(
+                    slide['headline'],
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      fontSize: 42,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                      letterSpacing: 0,
+                      height: 1.2,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Center(
+                  child: Text(
+                    slide['information'],
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                      height: 1.4,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
+          const SizedBox(height: 16),
           Center(
-            child: Image.asset(
-              slide['graphic'] ?? 'assets/images/test.png',
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.only(left: 10, right: 10),
-            alignment: Alignment.center,
             child: Text(
-              slide['information'],
-              textAlign: TextAlign.center,
-              style: GoogleFonts.montserrat(
-                fontSize: 18,
-                color: Colors.white,
+              '$index',
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+                height: 1.4,
+                color: Colors.grey,
               ),
             ),
-          ),
+          )
         ],
       ),
     );
@@ -142,9 +204,9 @@ class _LearningScreenState extends State<LearningScreen>
       void Function() startArrowAnimation,
       BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(top: 30, bottom: 30, left: 20, right: 20),
+      padding: const EdgeInsets.only(top: 40, bottom: 20, right: 20),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Center(
@@ -154,10 +216,11 @@ class _LearningScreenState extends State<LearningScreen>
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'Learn',
-                    style: GoogleFonts.montserrat(
+                    style: GoogleFonts.poppins(
                       fontSize: 58,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                       color: Colors.white,
+                      height: 1.1,
                     ),
                   ),
                 ),
@@ -165,10 +228,11 @@ class _LearningScreenState extends State<LearningScreen>
                   alignment: Alignment.center,
                   child: Text(
                     'Something',
-                    style: GoogleFonts.montserrat(
+                    style: GoogleFonts.poppins(
                       fontSize: 58,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                       color: Colors.white,
+                      height: 1.1,
                     ),
                   ),
                 ),
@@ -176,10 +240,11 @@ class _LearningScreenState extends State<LearningScreen>
                   alignment: Alignment.centerRight,
                   child: Text(
                     'New',
-                    style: GoogleFonts.montserrat(
+                    style: GoogleFonts.poppins(
                       fontSize: 58,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                       color: Colors.white,
+                      height: 1.1,
                     ),
                   ),
                 ),
@@ -229,8 +294,9 @@ class _LearningScreenState extends State<LearningScreen>
                   children: [
                     Text(
                       'Swipe to Learn',
-                      style: GoogleFonts.montserrat(
+                      style: GoogleFonts.poppins(
                         fontSize: 18,
+                        fontWeight: FontWeight.w500,
                         color: Colors.white,
                       ),
                     ),
