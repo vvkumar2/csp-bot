@@ -125,7 +125,7 @@ class _LearningScreenState extends State<LearningScreen>
       margin: EdgeInsets.only(top: top, bottom: 30, right: 10, left: 10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: Color.fromRGBO(31, 25, 31, 0.6 - _activeTopicIndex * 0.4),
+        color: Color.fromRGBO(33, 32, 32, 0.6 - _activeTopicIndex * 0.4),
         boxShadow: [
           BoxShadow(
             color: const Color.fromARGB(255, 21, 21, 21).withOpacity(0.1),

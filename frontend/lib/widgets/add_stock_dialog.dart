@@ -28,7 +28,11 @@ class AddStockDialog extends ConsumerWidget {
     String? strategyInput;
 
     return AlertDialog(
-      backgroundColor: Colors.grey.shade100,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+      backgroundColor: const Color.fromARGB(255, 22, 22, 23),
+      elevation: 0,
       title: SizedBox(
         height: 45,
         width: double.infinity,
@@ -37,6 +41,7 @@ class AddStockDialog extends ConsumerWidget {
           textAlign: TextAlign.center,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
+          style: const TextStyle(color: Colors.white, fontSize: 26),
         ),
       ),
       content: SingleChildScrollView(
@@ -53,6 +58,8 @@ class AddStockDialog extends ConsumerWidget {
               SizedBox(
                 height: 35,
                 child: TextFormField(
+                  style: const TextStyle(
+                      color: Color.fromARGB(206, 255, 255, 255)),
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     double? val = double.tryParse(value);
@@ -80,6 +87,8 @@ class AddStockDialog extends ConsumerWidget {
               SizedBox(
                 height: 35,
                 child: TextFormField(
+                  style: const TextStyle(
+                      color: Color.fromARGB(206, 255, 255, 255)),
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     double? val = double.tryParse(value);
@@ -108,6 +117,8 @@ class AddStockDialog extends ConsumerWidget {
               SizedBox(
                 height: 35,
                 child: TextFormField(
+                  style: const TextStyle(
+                      color: Color.fromARGB(206, 255, 255, 255)),
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     double? val = double.tryParse(value);
@@ -143,7 +154,11 @@ class AddStockDialog extends ConsumerWidget {
                       .map((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
-                      child: Text(value),
+                      child: Text(
+                        value,
+                        style: const TextStyle(
+                            color: Color.fromARGB(206, 255, 255, 255)),
+                      ),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -163,6 +178,12 @@ class AddStockDialog extends ConsumerWidget {
       ),
       actions: [
         TextButton(
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.purple,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
           onPressed: () {
             if (_formKey.currentState!.validate()) {
               _formKey.currentState!.save();
@@ -179,13 +200,19 @@ class AddStockDialog extends ConsumerWidget {
               ScaffoldMessenger.of(context).showSnackBar(snackBar);
             }
           },
-          child: const Text('Add'),
+          child: const Text('Add', style: TextStyle(color: Colors.white)),
         ),
         TextButton(
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.purple,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: const Text('Cancel'),
+          child: const Text('Cancel', style: TextStyle(color: Colors.white)),
         ),
       ],
     );

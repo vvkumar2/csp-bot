@@ -18,11 +18,20 @@ class EditStockDialog extends ConsumerWidget {
     String? strategyInput = stock.strategy;
 
     return AlertDialog(
+      backgroundColor: const Color.fromARGB(255, 32, 32, 33),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+      elevation: 0,
       title: SizedBox(
         height: 45,
         width: double.infinity,
         child: Text(
           stock.company,
+          style: const TextStyle(
+            fontSize: 28,
+            color: Colors.white,
+          ),
           textAlign: TextAlign.center,
         ),
       ),
@@ -40,6 +49,8 @@ class EditStockDialog extends ConsumerWidget {
               SizedBox(
                 height: 35,
                 child: TextFormField(
+                  style: const TextStyle(
+                      color: Color.fromARGB(206, 255, 255, 255)),
                   initialValue: stock.delta.toString(),
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
@@ -63,6 +74,8 @@ class EditStockDialog extends ConsumerWidget {
               SizedBox(
                 height: 35,
                 child: TextFormField(
+                  style: const TextStyle(
+                      color: Color.fromARGB(206, 255, 255, 255)),
                   initialValue: stock.maxHoldings.toString(),
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
@@ -86,6 +99,8 @@ class EditStockDialog extends ConsumerWidget {
               SizedBox(
                 height: 35,
                 child: TextFormField(
+                  style: const TextStyle(
+                      color: Color.fromARGB(206, 255, 255, 255)),
                   initialValue: stock.maxPrice.toString(),
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
@@ -116,7 +131,9 @@ class EditStockDialog extends ConsumerWidget {
                       .map((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
-                      child: Text(value),
+                      child: Text(value,
+                          style: const TextStyle(
+                              color: Color.fromARGB(206, 255, 255, 255))),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -136,6 +153,12 @@ class EditStockDialog extends ConsumerWidget {
       ),
       actions: [
         TextButton(
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.purple,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
           onPressed: () {
             if (_formKey.currentState!.validate()) {
               _formKey.currentState!.save();
@@ -151,13 +174,19 @@ class EditStockDialog extends ConsumerWidget {
               ScaffoldMessenger.of(context).showSnackBar(snackBar);
             }
           },
-          child: const Text('Add'),
+          child: const Text('Confirm', style: TextStyle(color: Colors.white)),
         ),
         TextButton(
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.purple,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: const Text('Cancel'),
+          child: const Text('Cancel', style: TextStyle(color: Colors.white)),
         ),
       ],
     );

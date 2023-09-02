@@ -81,7 +81,7 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primary,
+      backgroundColor: const Color.fromARGB(255, 16, 17, 17),
       body: Center(
           child: SingleChildScrollView(
         child: Column(
@@ -90,12 +90,16 @@ class _AuthScreenState extends State<AuthScreen> {
               margin: const EdgeInsets.only(
                   top: 30, bottom: 20, left: 20, right: 20),
               width: 200,
-              child: Image.asset('assets/images/putprofit-logo-white.png'),
+              child: Image.asset('assets/images/putprofit-logo.png'),
             ),
             const SizedBox(
               height: 30,
             ),
             Card(
+                color: Color.fromARGB(255, 22, 22, 23),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
                 margin: const EdgeInsets.all(20),
                 child: SingleChildScrollView(
                     child: Padding(
@@ -112,6 +116,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                   _userImageFile = pickedImage;
                                 }),
                           TextFormField(
+                            style: const TextStyle(color: Colors.white),
                             decoration:
                                 const InputDecoration(labelText: 'Email'),
                             keyboardType: TextInputType.emailAddress,
@@ -131,6 +136,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           ),
                           if (!_isLogin)
                             TextFormField(
+                              style: const TextStyle(color: Colors.white),
                               decoration:
                                   const InputDecoration(labelText: 'Username'),
                               enableSuggestions: false,
@@ -148,6 +154,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               },
                             ),
                           TextFormField(
+                            style: const TextStyle(color: Colors.white),
                             decoration:
                                 const InputDecoration(labelText: 'Password'),
                             obscureText: true,
@@ -163,9 +170,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               _enteredPassword = value!;
                             },
                           ),
-                          const SizedBox(
-                            height: 12,
-                          ),
+                          const SizedBox(height: 28),
                           if (_isAuthenticating)
                             const SizedBox(
                                 width: 25,
@@ -175,11 +180,14 @@ class _AuthScreenState extends State<AuthScreen> {
                             ElevatedButton(
                               onPressed: _submit,
                               style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      Theme.of(context).colorScheme.primary,
                                   shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20)),
+                                      borderRadius: BorderRadius.circular(10)),
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 30, vertical: 8)),
-                              child: Text(_isLogin ? 'Login' : 'Sign Up'),
+                                      horizontal: 50, vertical: 10)),
+                              child: Text(_isLogin ? 'Login' : 'Sign Up',
+                                  style: const TextStyle(color: Colors.white)),
                             ),
                           if (!_isAuthenticating)
                             TextButton(
@@ -188,9 +196,12 @@ class _AuthScreenState extends State<AuthScreen> {
                                     _isLogin = !_isLogin;
                                   });
                                 },
-                                child: Text(_isLogin
-                                    ? 'Create new account'
-                                    : 'I already have an account'))
+                                child: Text(
+                                  _isLogin
+                                      ? 'Create new account'
+                                      : 'Already have account?',
+                                  style: TextStyle(color: Colors.white),
+                                ))
                         ],
                       )),
                 )))

@@ -8,9 +8,9 @@ import 'package:frontend/screens/stocks.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:frontend/providers/stock_filters_provider.dart';
 import 'package:frontend/providers/tab_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:frontend/providers/user_provider.dart';
 
 class NavbarScreen extends ConsumerStatefulWidget {
   const NavbarScreen({super.key});
@@ -118,7 +118,7 @@ class _NavbarScreenState extends ConsumerState<NavbarScreen> {
   PreferredSizeWidget? buildDashboardAppBar() {
     return AppBar(
       centerTitle: false,
-      backgroundColor: const Color.fromARGB(255, 8, 8, 8),
+      backgroundColor: const Color.fromARGB(255, 16, 17, 17),
       title: Text("Dashboard",
           style: GoogleFonts.poppins(
               fontSize: 28,
@@ -131,7 +131,7 @@ class _NavbarScreenState extends ConsumerState<NavbarScreen> {
   PreferredSizeWidget? buildProfileAppBar() {
     return AppBar(
       centerTitle: false,
-      backgroundColor: const Color.fromARGB(255, 8, 8, 8),
+      backgroundColor: const Color.fromARGB(255, 16, 17, 17),
       title: Text("Profile",
           style: GoogleFonts.poppins(
               fontSize: 28,
@@ -144,6 +144,8 @@ class _NavbarScreenState extends ConsumerState<NavbarScreen> {
               try {
                 // Sign out from Firebase Auth
                 await FirebaseAuth.instance.signOut();
+                // Reset the user state
+                ref.read(userProvider.notifier).cancelSubscription();
               } catch (error) {
                 // Provide feedback to the user
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -162,7 +164,7 @@ class _NavbarScreenState extends ConsumerState<NavbarScreen> {
   PreferredSizeWidget? buildStocksAppBar() {
     return AppBar(
       centerTitle: false,
-      backgroundColor: const Color.fromARGB(255, 8, 8, 8),
+      backgroundColor: const Color.fromARGB(255, 16, 17, 17),
       title: _customTitle,
       actions: [
         IconButton(

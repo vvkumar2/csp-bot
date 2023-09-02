@@ -16,7 +16,9 @@ class HeaderWithTooltip extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(header),
+        Text(header,
+            style: const TextStyle(
+                fontWeight: FontWeight.bold, color: Colors.white)),
         const SizedBox(width: 10.0), // Some spacing between text and icon
         Tooltip(
             message: tooltipText,
@@ -36,7 +38,8 @@ class HeaderWithTooltip extends StatelessWidget {
                   ),
                 );
               },
-              child: const Icon(EvaIcons.questionMarkCircleOutline, size: 20.0),
+              child: const Icon(EvaIcons.questionMarkCircleOutline,
+                  size: 20.0, color: Colors.white),
             )),
       ],
     );

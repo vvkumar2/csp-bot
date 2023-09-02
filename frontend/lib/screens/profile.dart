@@ -70,103 +70,119 @@ class ProfileScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: RawScrollbar(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: DataTable(
-                      columnSpacing: 30,
-                      headingRowHeight: 40,
-                      dataRowMinHeight: 60,
-                      dataRowMaxHeight: 60,
-                      headingRowColor:
-                          MaterialStateProperty.all(Colors.transparent),
-                      columns: const [
-                        DataColumn(label: Text('')),
-                        DataColumn(
-                            label: Text('Ticker',
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.bold))),
-                        DataColumn(
-                            label: Text('Delta',
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.bold))),
-                        DataColumn(
-                            label: Text('Max Price',
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.bold))),
-                        DataColumn(
-                            label: Text('Max Collateral',
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.bold))),
-                        DataColumn(
-                            label: Text('Strategy',
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.bold))),
-                      ],
-                      rows: user.stockList.map((WatchlistStock stock) {
-                        return DataRow(cells: [
-                          DataCell(
-                            InkWell(
-                                child: const Icon(Icons.edit,
-                                    color: Colors.purple),
-                                onTap: () async {
-                                  await showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return EditStockDialog(
-                                            stock: stock,
-                                            addStockToUserList:
-                                                addStockToUserList);
-                                      });
-                                }),
-                          ),
-                          DataCell(Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(stock.ticker,
-                                  style: const TextStyle(color: Colors.white)),
-                              const SizedBox(height: 5),
-                              Text(stock.company,
-                                  style: const TextStyle(
-                                      fontSize: 12, color: Colors.grey)),
+              child: user.stockList.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'No stocks in watchlist, add some!',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 16,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    )
+                  : RawScrollbar(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DataTable(
+                            columnSpacing: 30,
+                            headingRowHeight: 40,
+                            dataRowMinHeight: 60,
+                            dataRowMaxHeight: 60,
+                            headingRowColor:
+                                MaterialStateProperty.all(Colors.transparent),
+                            columns: const [
+                              DataColumn(label: Text('')),
+                              DataColumn(
+                                  label: Text('Ticker',
+                                      style: TextStyle(
+                                          color: Colors.grey,
+                                          fontWeight: FontWeight.bold))),
+                              DataColumn(
+                                  label: Text('Delta',
+                                      style: TextStyle(
+                                          color: Colors.grey,
+                                          fontWeight: FontWeight.bold))),
+                              DataColumn(
+                                  label: Text('Max Price',
+                                      style: TextStyle(
+                                          color: Colors.grey,
+                                          fontWeight: FontWeight.bold))),
+                              DataColumn(
+                                  label: Text('Max Collateral',
+                                      style: TextStyle(
+                                          color: Colors.grey,
+                                          fontWeight: FontWeight.bold))),
+                              DataColumn(
+                                  label: Text('Strategy',
+                                      style: TextStyle(
+                                          color: Colors.grey,
+                                          fontWeight: FontWeight.bold))),
                             ],
-                          )),
-                          DataCell(Align(
-                            alignment: Alignment.centerRight,
-                            child: Text(stock.delta.toStringAsFixed(2),
-                                style: const TextStyle(color: Colors.white)),
-                          )),
-                          DataCell(Align(
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                                '\$${stock.maxPrice.toStringAsFixed(2)}',
-                                style: const TextStyle(color: Colors.white)),
-                          )),
-                          DataCell(Align(
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                                '\$${stock.maxHoldings.toStringAsFixed(0)}',
-                                style: const TextStyle(color: Colors.white)),
-                          )),
-                          DataCell(Align(
-                            alignment: Alignment.centerRight,
-                            child: Text(stock.strategy,
-                                style: const TextStyle(color: Colors.white)),
-                          )),
-                        ]);
-                      }).toList(),
+                            rows: user.stockList.map((WatchlistStock stock) {
+                              return DataRow(cells: [
+                                DataCell(
+                                  InkWell(
+                                      child: const Icon(Icons.edit,
+                                          color: Colors.purple),
+                                      onTap: () async {
+                                        await showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return EditStockDialog(
+                                                  stock: stock,
+                                                  addStockToUserList:
+                                                      addStockToUserList);
+                                            });
+                                      }),
+                                ),
+                                DataCell(Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(stock.ticker,
+                                        style: const TextStyle(
+                                            color: Colors.white)),
+                                    const SizedBox(height: 5),
+                                    Text(stock.company,
+                                        style: const TextStyle(
+                                            fontSize: 12, color: Colors.grey)),
+                                  ],
+                                )),
+                                DataCell(Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(stock.delta.toStringAsFixed(2),
+                                      style:
+                                          const TextStyle(color: Colors.white)),
+                                )),
+                                DataCell(Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                      '\$${stock.maxPrice.toStringAsFixed(2)}',
+                                      style:
+                                          const TextStyle(color: Colors.white)),
+                                )),
+                                DataCell(Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                      '\$${stock.maxHoldings.toStringAsFixed(0)}',
+                                      style:
+                                          const TextStyle(color: Colors.white)),
+                                )),
+                                DataCell(Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(stock.strategy,
+                                      style:
+                                          const TextStyle(color: Colors.white)),
+                                )),
+                              ]);
+                            }).toList(),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ),
             ),
           ],
         ),

@@ -2,6 +2,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/models/stock_model.dart';
 import 'package:frontend/providers/stock_list_provider.dart';
 
+class StockListState {
+  final List<Stock>? stocks;
+  final bool isLoading;
+
+  StockListState({this.stocks, this.isLoading = false});
+}
+
 enum Filter { search }
 
 final kInitialFilters = {
@@ -34,29 +41,29 @@ final filtersProvider =
   (ref) => FiltersNotifiter(),
 );
 
-final filteredStockProvider = Provider<List<Stock>>((ref) {
+final filteredStockProvider = Provider<StockListState>((ref) {
   final stocks = ref.watch(stockListProvider);
   final filters = ref.watch(filtersProvider);
   final search = filters[Filter.search] as String;
 
   return stocks.maybeWhen(
     data: (stocks) {
-      return stocks.where((stock) {
+      final filteredStocks = stocks.where((stock) {
         return stock.ticker.toLowerCase().contains(search.toLowerCase()) ||
             stock.company.toLowerCase().contains(search.toLowerCase());
       }).toList();
+
+      return StockListState(stocks: filteredStocks);
     },
     loading: () {
       print('Loading');
-      return List.empty();
+      return StockListState(isLoading: true);
     }, // You can return null or a placeholder list for loading
     error: (_, __) {
-      print(_);
-      return List.empty();
+      return StockListState();
     },
     orElse: () {
-      print('Or else');
-      return List.empty();
+      return StockListState();
     },
   );
 

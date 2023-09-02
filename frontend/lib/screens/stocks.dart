@@ -110,336 +110,371 @@ class _StockScreenState extends ConsumerState<StockScreen> {
         dividerColor: const Color(0x4F2E3334),
         iconTheme: const IconThemeData(color: Colors.grey),
       ),
-      child: filteredStocks.isEmpty
+      child: filteredStocks.isLoading
           ? const Center(child: SplashScreen())
-          : Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 16, top: 14),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        decoration: BoxDecoration(
-                          color: Colors.purple,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<SortOption>(
-                            borderRadius: BorderRadius.circular(10),
-                            style: const TextStyle(color: Colors.white),
-                            dropdownColor: const Color(0xFF1E1E1E),
-                            icon: const Icon(EvaIcons.arrowIosDownwardOutline,
-                                color: Colors.white),
-                            value: _selectedSortOption,
-                            hint: const Text('Sort by',
-                                style: TextStyle(color: Colors.white)),
-                            items: const <DropdownMenuItem<SortOption>>[
-                              DropdownMenuItem<SortOption>(
-                                value: SortOption.ticker,
-                                child: Text('A-Z'),
-                              ),
-                              DropdownMenuItem<SortOption>(
-                                value: SortOption.priceInc,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text('Price'),
-                                    SizedBox(width: 4),
-                                    Icon(
-                                      EvaIcons.arrowUpward,
-                                      color: Colors.white,
-                                      size: 18,
-                                    ) // You can adjust the color accordingly
-                                  ],
-                                ),
-                              ),
-                              DropdownMenuItem<SortOption>(
-                                value: SortOption.volumeDec,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text('Volume'),
-                                    SizedBox(width: 4),
-                                    Icon(
-                                      EvaIcons.arrowDownward,
-                                      color: Colors.white,
-                                      size: 18,
-                                    ) // You can adjust the color accordingly
-                                  ],
-                                ),
-                              ),
-                              DropdownMenuItem<SortOption>(
-                                value: SortOption.oneDayChangeInc,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text('1D Change'),
-                                    SizedBox(width: 4),
-                                    Icon(
-                                      EvaIcons.arrowDownward,
-                                      color: Colors.white,
-                                      size: 18,
-                                    ) // You can adjust the color accordingly
-                                  ],
-                                ),
-                              ),
-                            ],
-                            onChanged: (SortOption? newValue) {
-                              setState(() {
-                                _selectedSortOption = newValue!;
-                                if (_selectedSortOption ==
-                                    SortOption.volumeDec) {
-                                  sortStocks(filteredStocks,
-                                      _selectedSortOption, false);
-                                } else {
-                                  sortStocks(filteredStocks,
-                                      _selectedSortOption, true);
-                                }
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.refresh, color: Colors.purple),
-                        onPressed: () {
-                          ref.refresh(stockListProvider);
-                        },
-                      ),
-                    ],
+          : filteredStocks.stocks == null || filteredStocks.stocks!.isEmpty
+              ? const Center(
+                  child: Text(
+                  'No stocks found',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 16,
                   ),
-                ),
-                const SizedBox(height: 20),
-                Expanded(
-                  child: RawScrollbar(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: SizedBox(
-                        width: 600,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Padding(
-                              padding:
-                                  EdgeInsets.only(top: 20, left: 60, right: 20),
-                              child: Row(
-                                children: [
-                                  // For example:
-                                  SizedBox(
-                                      width: 170,
-                                      child: Text('Ticker',
-                                          style: TextStyle(
-                                              color: Colors.grey,
-                                              fontWeight: FontWeight.bold))),
-
-                                  SizedBox(
-                                      width: 95,
-                                      child: Text('Price',
-                                          style: TextStyle(
-                                              color: Colors.grey,
-                                              fontWeight: FontWeight.bold))),
-                                  SizedBox(
-                                      width: 95,
-                                      child: Text('Volume',
-                                          style: TextStyle(
-                                              color: Colors.grey,
-                                              fontWeight: FontWeight.bold))),
-                                  SizedBox(
-                                      width: 115,
-                                      child: Text('52W High',
-                                          style: TextStyle(
-                                              color: Colors.grey,
-                                              fontWeight: FontWeight.bold))),
-                                  Expanded(
-                                    child: SizedBox(
-                                        width: 115,
-                                        child: Text('1D Δ',
-                                            style: TextStyle(
-                                                color: Colors.grey,
-                                                fontWeight: FontWeight.bold))),
-                                  ),
-                                ],
-                              ),
+                  textAlign: TextAlign.center,
+                ))
+              : Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16, top: 14),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.purple,
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            const Divider(),
-                            Expanded(
-                              child: ListView.builder(
-                                itemCount: filteredStocks.length,
-                                itemBuilder: (ctx, index) {
-                                  final stock = filteredStocks[index];
-
-                                  return Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 8, left: 20, right: 20),
-                                    child: Column(
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<SortOption>(
+                                borderRadius: BorderRadius.circular(10),
+                                style: const TextStyle(color: Colors.white),
+                                dropdownColor: const Color(0xFF1E1E1E),
+                                icon: const Icon(
+                                    EvaIcons.arrowIosDownwardOutline,
+                                    color: Colors.white),
+                                value: _selectedSortOption,
+                                hint: const Text('Sort by',
+                                    style: TextStyle(color: Colors.white)),
+                                items: const <DropdownMenuItem<SortOption>>[
+                                  DropdownMenuItem<SortOption>(
+                                    value: SortOption.ticker,
+                                    child: Text('A-Z'),
+                                  ),
+                                  DropdownMenuItem<SortOption>(
+                                    value: SortOption.priceInc,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Row(
-                                          children: [
-                                            // Icon Data Cell
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  right: 20),
-                                              child: InkWell(
-                                                borderRadius:
-                                                    BorderRadius.circular(50),
-                                                child: Icon(
-                                                    stockExistsInUserList(
-                                                            stock.ticker,
-                                                            userData!)
-                                                        ? EvaIcons
-                                                            .checkmarkCircle2
-                                                        : EvaIcons
-                                                            .plusCircleOutline,
-                                                    size: 24,
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .primary),
-                                                onTap: () async {
-                                                  if (stockExistsInUserList(
-                                                      stock.ticker, userData)) {
-                                                    removeStockFromUserList(
-                                                        stock.ticker, userData);
-                                                    final snackBar = SnackBar(
-                                                      content: Text(
-                                                          'You have removed ${stock.company} from your watchlist'),
-                                                      backgroundColor:
-                                                          Colors.red.shade400,
-                                                      duration: const Duration(
-                                                          seconds: 2),
-                                                    );
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(snackBar);
-                                                  } else {
-                                                    // Add the stock to user's stock list and notify
-                                                    await showDialog(
-                                                      context: context,
-                                                      builder: (context) =>
-                                                          AddStockDialog(
-                                                        stock: stock,
-                                                        addStockToUserList:
-                                                            addStockToUserList,
-                                                        userData: userData,
-                                                        stockExistsInUserList:
-                                                            stockExistsInUserList,
-                                                        removeStockFromUserList:
-                                                            removeStockFromUserList,
-                                                      ),
-                                                    );
-                                                  }
-                                                },
-                                              ),
-                                            ),
-                                            // Ticker and Company Name
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(stock.ticker,
-                                                      style: const TextStyle(
-                                                          color: Colors.white)),
-                                                  const SizedBox(height: 5),
-                                                  Text(
-                                                    stock.company,
-                                                    style: const TextStyle(
-                                                        fontSize: 12,
-                                                        color: Colors.grey),
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-
-                                            // Price
-                                            SizedBox(
-                                              width: 95,
-                                              child: Align(
-                                                alignment:
-                                                    Alignment.centerRight,
-                                                child: Text(
-                                                  '\$${stock.price.toStringAsFixed(2)}',
-                                                  style: const TextStyle(
-                                                      color: Colors.white),
-                                                ),
-                                              ),
-                                            ),
-
-                                            // Volume
-                                            SizedBox(
-                                              width: 95,
-                                              child: Align(
-                                                alignment:
-                                                    Alignment.centerRight,
-                                                child: Text(
-                                                  '${(stock.volume / 1000000).toStringAsFixed(2)}M',
-                                                  style: const TextStyle(
-                                                      color: Colors.white),
-                                                ),
-                                              ),
-                                            ),
-
-                                            // 52 Week High
-                                            SizedBox(
-                                              width: 105,
-                                              child: Align(
-                                                alignment:
-                                                    Alignment.centerRight,
-                                                child: Text(
-                                                  '\$${stock.week52High.toStringAsFixed(2)}',
-                                                  style: const TextStyle(
-                                                      color: Colors.white),
-                                                ),
-                                              ),
-                                            ),
-
-                                            // 1 Day Change
-                                            SizedBox(
-                                              width: 105,
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.end,
-                                                children: [
-                                                  Icon(
-                                                    stock.oneDayChange > 0
-                                                        ? Icons.arrow_drop_up
-                                                        : Icons.arrow_drop_down,
-                                                    color: stock.oneDayChange >
-                                                            0
-                                                        ? Colors.green.shade400
-                                                        : Colors.red.shade400,
-                                                  ),
-                                                  const SizedBox(width: 3),
-                                                  Text(
-                                                    '${stock.oneDayChange}%',
-                                                    style: const TextStyle(
-                                                        color: Colors.white),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 8),
-                                        const Divider()
+                                        Text('Price'),
+                                        SizedBox(width: 4),
+                                        Icon(
+                                          EvaIcons.arrowUpward,
+                                          color: Colors.white,
+                                          size: 18,
+                                        ) // You can adjust the color accordingly
                                       ],
                                     ),
-                                  );
+                                  ),
+                                  DropdownMenuItem<SortOption>(
+                                    value: SortOption.volumeDec,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text('Volume'),
+                                        SizedBox(width: 4),
+                                        Icon(
+                                          EvaIcons.arrowDownward,
+                                          color: Colors.white,
+                                          size: 18,
+                                        ) // You can adjust the color accordingly
+                                      ],
+                                    ),
+                                  ),
+                                  DropdownMenuItem<SortOption>(
+                                    value: SortOption.oneDayChangeInc,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text('1D Change'),
+                                        SizedBox(width: 4),
+                                        Icon(
+                                          EvaIcons.arrowDownward,
+                                          color: Colors.white,
+                                          size: 18,
+                                        ) // You can adjust the color accordingly
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                                onChanged: (SortOption? newValue) {
+                                  setState(() {
+                                    _selectedSortOption = newValue!;
+                                    if (_selectedSortOption ==
+                                        SortOption.volumeDec) {
+                                      sortStocks(filteredStocks,
+                                          _selectedSortOption, false);
+                                    } else {
+                                      sortStocks(filteredStocks,
+                                          _selectedSortOption, true);
+                                    }
+                                  });
                                 },
                               ),
                             ),
-                          ],
+                          ),
+                          IconButton(
+                            icon:
+                                const Icon(Icons.refresh, color: Colors.purple),
+                            onPressed: () {
+                              ref.refresh(stockListProvider);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Expanded(
+                      child: RawScrollbar(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: SizedBox(
+                            width: 600,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.only(
+                                      top: 20, left: 60, right: 20),
+                                  child: Row(
+                                    children: [
+                                      // For example:
+                                      SizedBox(
+                                          width: 170,
+                                          child: Text('Ticker',
+                                              style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontWeight:
+                                                      FontWeight.bold))),
+
+                                      SizedBox(
+                                          width: 95,
+                                          child: Text('Price',
+                                              style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontWeight:
+                                                      FontWeight.bold))),
+                                      SizedBox(
+                                          width: 95,
+                                          child: Text('Volume',
+                                              style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontWeight:
+                                                      FontWeight.bold))),
+                                      SizedBox(
+                                          width: 115,
+                                          child: Text('52W High',
+                                              style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontWeight:
+                                                      FontWeight.bold))),
+                                      Expanded(
+                                        child: SizedBox(
+                                            width: 115,
+                                            child: Text('1D Δ',
+                                                style: TextStyle(
+                                                    color: Colors.grey,
+                                                    fontWeight:
+                                                        FontWeight.bold))),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Divider(),
+                                Expanded(
+                                  child: ListView.builder(
+                                    itemCount: filteredStocks.stocks!.length,
+                                    itemBuilder: (ctx, index) {
+                                      final stock =
+                                          filteredStocks.stocks![index];
+
+                                      return Padding(
+                                        padding: const EdgeInsets.only(
+                                            top: 8, left: 20, right: 20),
+                                        child: Column(
+                                          children: [
+                                            Row(
+                                              children: [
+                                                // Icon Data Cell
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          right: 20),
+                                                  child: InkWell(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            50),
+                                                    child: Icon(
+                                                        stockExistsInUserList(
+                                                                stock.ticker,
+                                                                userData!)
+                                                            ? EvaIcons
+                                                                .checkmarkCircle2
+                                                            : EvaIcons
+                                                                .plusCircleOutline,
+                                                        size: 24,
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .primary),
+                                                    onTap: () async {
+                                                      if (stockExistsInUserList(
+                                                          stock.ticker,
+                                                          userData)) {
+                                                        removeStockFromUserList(
+                                                            stock.ticker,
+                                                            userData);
+                                                        final snackBar =
+                                                            SnackBar(
+                                                          content: Text(
+                                                              'You have removed ${stock.company} from your watchlist'),
+                                                          backgroundColor:
+                                                              Colors
+                                                                  .red.shade400,
+                                                          duration:
+                                                              const Duration(
+                                                                  seconds: 2),
+                                                        );
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                                snackBar);
+                                                      } else {
+                                                        // Add the stock to user's stock list and notify
+                                                        await showDialog(
+                                                          context: context,
+                                                          builder: (context) =>
+                                                              AddStockDialog(
+                                                            stock: stock,
+                                                            addStockToUserList:
+                                                                addStockToUserList,
+                                                            userData: userData,
+                                                            stockExistsInUserList:
+                                                                stockExistsInUserList,
+                                                            removeStockFromUserList:
+                                                                removeStockFromUserList,
+                                                          ),
+                                                        );
+                                                      }
+                                                    },
+                                                  ),
+                                                ),
+                                                // Ticker and Company Name
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(stock.ticker,
+                                                          style:
+                                                              const TextStyle(
+                                                                  color: Colors
+                                                                      .white)),
+                                                      const SizedBox(height: 5),
+                                                      Text(
+                                                        stock.company,
+                                                        style: const TextStyle(
+                                                            fontSize: 12,
+                                                            color: Colors.grey),
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+
+                                                // Price
+                                                SizedBox(
+                                                  width: 95,
+                                                  child: Align(
+                                                    alignment:
+                                                        Alignment.centerRight,
+                                                    child: Text(
+                                                      '\$${stock.price.toStringAsFixed(2)}',
+                                                      style: const TextStyle(
+                                                          color: Colors.white),
+                                                    ),
+                                                  ),
+                                                ),
+
+                                                // Volume
+                                                SizedBox(
+                                                  width: 95,
+                                                  child: Align(
+                                                    alignment:
+                                                        Alignment.centerRight,
+                                                    child: Text(
+                                                      '${(stock.volume / 1000000).toStringAsFixed(2)}M',
+                                                      style: const TextStyle(
+                                                          color: Colors.white),
+                                                    ),
+                                                  ),
+                                                ),
+
+                                                // 52 Week High
+                                                SizedBox(
+                                                  width: 105,
+                                                  child: Align(
+                                                    alignment:
+                                                        Alignment.centerRight,
+                                                    child: Text(
+                                                      '\$${stock.week52High.toStringAsFixed(2)}',
+                                                      style: const TextStyle(
+                                                          color: Colors.white),
+                                                    ),
+                                                  ),
+                                                ),
+
+                                                // 1 Day Change
+                                                SizedBox(
+                                                  width: 105,
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.end,
+                                                    children: [
+                                                      Icon(
+                                                        stock.oneDayChange > 0
+                                                            ? Icons
+                                                                .arrow_drop_up
+                                                            : Icons
+                                                                .arrow_drop_down,
+                                                        color:
+                                                            stock.oneDayChange >
+                                                                    0
+                                                                ? Colors.green
+                                                                    .shade400
+                                                                : Colors.red
+                                                                    .shade400,
+                                                      ),
+                                                      const SizedBox(width: 3),
+                                                      Text(
+                                                        '${stock.oneDayChange}%',
+                                                        style: const TextStyle(
+                                                            color:
+                                                                Colors.white),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 8),
+                                            const Divider()
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
     );
   }
 

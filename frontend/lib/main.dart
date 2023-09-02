@@ -27,7 +27,7 @@ class App extends ConsumerWidget {
         title: 'PutProfit',
         theme: ThemeData().copyWith(
           useMaterial3: true,
-          scaffoldBackgroundColor: const Color.fromARGB(255, 8, 8, 8),
+          scaffoldBackgroundColor: const Color.fromARGB(255, 16, 17, 17),
           colorScheme: ColorScheme.fromSeed(
             seedColor: Colors.purple,
           ),
