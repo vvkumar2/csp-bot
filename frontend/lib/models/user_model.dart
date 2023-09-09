@@ -9,6 +9,7 @@ class UserModel {
   final String imageUrl;
   final List<WatchlistStock> stockList;
   final List<Recommendation> recommendationList;
+  final List<Recommendation> addedRecommendationList;
 
   UserModel(
       {required this.uid,
@@ -16,13 +17,19 @@ class UserModel {
       required this.email,
       required this.imageUrl,
       required this.stockList,
-      required this.recommendationList});
+      required this.recommendationList,
+      required this.addedRecommendationList});
 
   factory UserModel.fromFirestore(String uid, Map<String, dynamic> data) {
     var stockList = (data['stock_list'] as List? ?? [])
         .map((stockData) => WatchlistStock.fromMap(stockData))
         .toList();
     var recommendationList = (data['recommendations_list'] as List? ?? [])
+        .map((recommendationData) => Recommendation.fromMap(recommendationData))
+        .toList();
+    var addedRecommendationList = (data['added_recommendations_list']
+                as List? ??
+            [])
         .map((recommendationData) => Recommendation.fromMap(recommendationData))
         .toList();
 
@@ -39,6 +46,7 @@ class UserModel {
       imageUrl: data['image_url'] ?? '',
       stockList: stockList,
       recommendationList: recommendationList,
+      addedRecommendationList: addedRecommendationList,
     );
   }
 }

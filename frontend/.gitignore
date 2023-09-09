@@ -45,7 +45,7 @@ pubspec.yaml
 .pub-cache/
 .pub/
 /build/
-
+/lib/.env
 # Symbolication related
 app.*.symbols
 

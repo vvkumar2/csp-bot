@@ -32,3 +32,23 @@ def add_recommendation_to_db(db, user_id, new_recommendation):
         logging.info(f"Recommendation added to database for user {user_id}.")
     except Exception as e:
         logging.error(f"Error adding recommendation to database for user {user_id}: {str(e)}")
+
+def replace_recommendation_list_in_db(db, user_id, new_recommendation_list):
+    try:
+        doc_ref = db.collection('users').document(user_id)
+        doc_ref.update({
+            "recommendations_list": new_recommendation_list
+        })
+        logging.info(f"Recommendation list updated for user {user_id}.")
+    except Exception as e:
+        logging.error(f"Error updating recommendation list for user {user_id}: {str(e)}")
+
+def replace_added_recommendation_list_in_db(db, user_id, new_added_recommendation_list):
+    try:
+        doc_ref = db.collection('users').document(user_id)
+        doc_ref.update({
+            "added_recommendations_list": new_added_recommendation_list
+        })
+        logging.info(f"Added recommendation list updated for user {user_id}.")
+    except Exception as e:
+        logging.error(f"Error updating added recommendation list for user {user_id}: {str(e)}")

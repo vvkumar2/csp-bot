@@ -8,12 +8,14 @@ import 'package:frontend/screens/dashboard.dart';
 import 'package:frontend/screens/splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/providers/user_provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await dotenv.load(fileName: "lib/.env");
   runApp(const ProviderScope(child: App()));
 }
 

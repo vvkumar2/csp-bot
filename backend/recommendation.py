@@ -1,5 +1,6 @@
 import utils
 import logging
+import datetime
 
 logging.basicConfig(level=logging.INFO)
 
@@ -47,11 +48,15 @@ def generate_recommendation(stock_ticker, available_capital, desired_delta, max_
     # Log the details of the recommended option
     utils.log_selling_details(stock_ticker, option_expiry_date, current_price, strike_price, option_bid_price, number_of_options)
 
+    print(type(option_expiry_date))
+
+    datetime_obj = datetime.datetime.combine(option_expiry_date, datetime.datetime.min.time())
+
     # Construct the recommendation details
     recommendation_details = {
         "bid_price": option_bid_price,
         "delta": desired_delta,
-        "expiry_date": option_expiry_date.strftime('%B %d, %Y at 12:00:00 AM UTC-4'),
+        "expiry_date": datetime_obj,
         "option_quantity": str(number_of_options),
         "strike_price": strike_price,
         "ticker": stock_ticker

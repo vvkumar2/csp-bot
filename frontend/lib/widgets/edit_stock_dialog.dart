@@ -12,7 +12,6 @@ class EditStockDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    String? deltaInput = stock.delta.toString();
     String? maxHoldingsInput = stock.maxHoldings.toString();
     String? maxPriceInput = stock.maxPrice.toString();
     String? strategyInput = stock.strategy;
@@ -28,10 +27,9 @@ class EditStockDialog extends ConsumerWidget {
         width: double.infinity,
         child: Text(
           stock.company,
-          style: const TextStyle(
-            fontSize: 28,
-            color: Colors.white,
-          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(color: Colors.white, fontSize: 26),
           textAlign: TextAlign.center,
         ),
       ),
@@ -41,30 +39,6 @@ class EditStockDialog extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              const HeaderWithTooltip(
-                header: 'Delta (0-1)',
-                tooltipText:
-                    'Delta represents the probability that an option will end up in the money. For a cash-secured put, it essentially indicates the likelihood of not incurring a loss.',
-              ),
-              SizedBox(
-                height: 35,
-                child: TextFormField(
-                  style: const TextStyle(
-                      color: Color.fromARGB(206, 255, 255, 255)),
-                  initialValue: stock.delta.toString(),
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    deltaInput = value;
-                  },
-                  validator: (value) {
-                    double? val = double.tryParse(value ?? '');
-                    if (val == null || val < 0 || val > 1) {
-                      return 'Enter a valid number between 0 and 1';
-                    }
-                    return null;
-                  },
-                ),
-              ),
               const SizedBox(height: 20),
               const HeaderWithTooltip(
                 header: 'Max Collateral',
@@ -124,6 +98,11 @@ class EditStockDialog extends ConsumerWidget {
               SizedBox(
                 height: 40,
                 child: DropdownButtonFormField<String>(
+                  dropdownColor: Color.fromARGB(255, 53, 52, 52),
+                  style: const TextStyle(
+                      color: Color.fromARGB(206, 255, 255, 255), fontSize: 16),
+                  borderRadius: BorderRadius.circular(10),
+                  elevation: 0,
                   value: strategyInput,
                   hint: const Text('Select a strategy',
                       style: TextStyle(fontSize: 12, color: Colors.grey)),
@@ -131,9 +110,7 @@ class EditStockDialog extends ConsumerWidget {
                       .map((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
-                      child: Text(value,
-                          style: const TextStyle(
-                              color: Color.fromARGB(206, 255, 255, 255))),
+                      child: Text(value),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -163,8 +140,8 @@ class EditStockDialog extends ConsumerWidget {
             if (_formKey.currentState!.validate()) {
               _formKey.currentState!.save();
               Navigator.of(context).pop();
-              addStockToUserList(stock.ticker, stock.company, deltaInput!,
-                  maxHoldingsInput!, maxPriceInput!, strategyInput!, ref);
+              addStockToUserList(stock.ticker, stock.company, maxHoldingsInput!,
+                  maxPriceInput!, strategyInput!, ref);
 
               final snackBar = SnackBar(
                 content: Text('You have successfully edited ${stock.company}'),

@@ -22,7 +22,6 @@ class AddStockDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    String? deltaInput;
     String? maxHoldingsInput;
     String? maxPriceInput;
     String? strategyInput;
@@ -50,35 +49,35 @@ class AddStockDialog extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              const HeaderWithTooltip(
-                header: 'Delta (0-1)',
-                tooltipText:
-                    'Delta represents the probability that an option will end up in the money. For a cash-secured put, it essentially indicates the likelihood of not incurring a loss.',
-              ),
-              SizedBox(
-                height: 35,
-                child: TextFormField(
-                  style: const TextStyle(
-                      color: Color.fromARGB(206, 255, 255, 255)),
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    double? val = double.tryParse(value);
-                    if (val != null) {
-                      deltaInput = val.toStringAsFixed(2);
-                    } else {
-                      deltaInput = value;
-                    }
-                  },
-                  validator: (value) {
-                    double? val = double.tryParse(value ?? '');
-                    if (val == null || val < 0 || val > 1) {
-                      return 'Enter a valid number between 0 and 1';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-              const SizedBox(height: 20),
+              // const HeaderWithTooltip(
+              //   header: 'Delta (0-1)',
+              //   tooltipText:
+              //       'Delta represents the probability that an option will end up in the money. For a cash-secured put, it essentially indicates the likelihood of being assigned the stock.',
+              // ),
+              // SizedBox(
+              //   height: 35,
+              //   child: TextFormField(
+              //     style: const TextStyle(
+              //         color: Color.fromARGB(206, 255, 255, 255)),
+              //     keyboardType: TextInputType.number,
+              //     onChanged: (value) {
+              //       double? val = double.tryParse(value);
+              //       if (val != null) {
+              //         deltaInput = val.toStringAsFixed(2);
+              //       } else {
+              //         deltaInput = value;
+              //       }
+              //     },
+              //     validator: (value) {
+              //       double? val = double.tryParse(value ?? '');
+              //       if (val == null || val < 0 || val > 1) {
+              //         return 'Enter a valid number between 0 and 1';
+              //       }
+              //       return null;
+              //     },
+              //   ),
+              // ),
+              // const SizedBox(height: 20),
               const HeaderWithTooltip(
                 header: 'Max Collateral',
                 tooltipText:
@@ -142,11 +141,16 @@ class AddStockDialog extends ConsumerWidget {
               const HeaderWithTooltip(
                 header: 'Strategy',
                 tooltipText:
-                    'Conservative strategies are less risky, but also less profitable. Aggressive strategies are more risky, but also more profitable. Balanced strategies are somewhere in between.',
+                    'Conservative strategies are less risky, but also less profitable and give fewer recs (far from the money). Aggressive strategies are more risky (closer to the money), but also more profitable and give you more recs. Balanced strategies are somewhere in between.',
               ),
               SizedBox(
                 height: 40,
                 child: DropdownButtonFormField<String>(
+                  dropdownColor: Color.fromARGB(255, 53, 52, 52),
+                  style: const TextStyle(
+                      color: Color.fromARGB(206, 255, 255, 255), fontSize: 16),
+                  borderRadius: BorderRadius.circular(10),
+                  elevation: 0,
                   value: strategyInput,
                   hint: const Text('Select Strategy',
                       style: TextStyle(fontSize: 12, color: Colors.grey)),
@@ -156,8 +160,6 @@ class AddStockDialog extends ConsumerWidget {
                       value: value,
                       child: Text(
                         value,
-                        style: const TextStyle(
-                            color: Color.fromARGB(206, 255, 255, 255)),
                       ),
                     );
                   }).toList(),
@@ -188,8 +190,8 @@ class AddStockDialog extends ConsumerWidget {
             if (_formKey.currentState!.validate()) {
               _formKey.currentState!.save();
               Navigator.of(context).pop();
-              addStockToUserList(stock.ticker, stock.company, deltaInput!,
-                  maxHoldingsInput!, maxPriceInput!, strategyInput!, ref);
+              addStockToUserList(stock.ticker, stock.company, maxHoldingsInput!,
+                  maxPriceInput!, strategyInput!, ref);
 
               final snackBar = SnackBar(
                 content:
@@ -218,136 +220,3 @@ class AddStockDialog extends ConsumerWidget {
     );
   }
 }
-
-// Future<void> _showAddStockDialog(BuildContext context, Stock stock,
-//     UserModel userData, Function addStockToUserList) async {
-//   String? deltaInput;
-//   String? maxHoldingsInput;
-//   String? maxPriceInput;
-//   String? strategyInput;
-
-//   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-//   await showDialog(
-//       context: context,
-//       builder: (BuildContext context) {
-//         final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-//         return AlertDialog(
-//           title: const Text('Add Stock'),
-//           content: SingleChildScrollView(
-//             child: Form(
-//               key: _formKey,
-//               child: ListBody(
-//                 children: <Widget>[
-//                   TextFormField(
-//                     keyboardType: TextInputType.number,
-//                     onChanged: (value) {
-//                       deltaInput = value;
-//                     },
-//                     validator: (value) {
-//                       double? val = double.tryParse(value ?? '');
-//                       if (val == null || val < 0 || val > 1) {
-//                         return 'Enter a valid number between 0 and 1';
-//                       }
-//                       return null;
-//                     },
-//                     decoration: const InputDecoration(
-//                       labelText: 'Delta (0-1)',
-//                     ),
-//                   ),
-//                   SizedBox(height: 20),
-//                   TextFormField(
-//                     keyboardType: TextInputType.number,
-//                     onChanged: (value) {
-//                       maxHoldingsInput = value;
-//                     },
-//                     decoration: const InputDecoration(
-//                       labelText: 'Max Collateral',
-//                     ),
-//                     validator: (value) {
-//                       double? val = double.tryParse(value ?? '');
-//                       if (val == null || val < 0) {
-//                         return 'Enter a valid number';
-//                       }
-//                       return null;
-//                     },
-//                   ),
-//                   const SizedBox(height: 20),
-//                   TextFormField(
-//                     keyboardType: TextInputType.number,
-//                     onChanged: (value) {
-//                       maxPriceInput = value;
-//                     },
-//                     decoration: const InputDecoration(
-//                       labelText: 'Max Price',
-//                     ),
-//                     validator: (value) {
-//                       double? val = double.tryParse(value ?? '');
-//                       if (val == null || val < 0) {
-//                         return 'Enter a valid number';
-//                       }
-//                       return null;
-//                     },
-//                   ),
-//                   const SizedBox(height: 20),
-//                   DropdownButtonFormField<String>(
-//                     value: strategyInput,
-//                     hint: const Text('Select Strategy'),
-//                     items: <String>['Balanced', 'Aggressive', 'Conservative']
-//                         .map((String value) {
-//                       return DropdownMenuItem<String>(
-//                         value: value,
-//                         child: Text(value),
-//                       );
-//                     }).toList(),
-//                     onChanged: (value) {
-//                       strategyInput = value;
-//                     },
-//                     validator: (value) {
-//                       if (value == null) {
-//                         return 'Select a strategy';
-//                       }
-//                       return null;
-//                     },
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//           actions: [
-//             TextButton(
-//               onPressed: () {
-//                 if (_formKey.currentState!.validate()) {
-//                   _formKey.currentState!.save();
-//                   Navigator.of(context).pop();
-//                   addStockToUserList(
-//                     stock.ticker,
-//                     stock.company,
-//                     deltaInput!,
-//                     maxHoldingsInput!,
-//                     maxPriceInput!,
-//                     strategyInput!,
-//                   );
-
-//                   final snackBar = SnackBar(
-//                     content: Text(
-//                         'You have added ${stock.company} to your watchlist'),
-//                     backgroundColor: Colors.green.shade400,
-//                     duration: const Duration(seconds: 2),
-//                   );
-//                   ScaffoldMessenger.of(context).showSnackBar(snackBar);
-//                 }
-//               },
-//               child: const Text('Add'),
-//             ),
-//             TextButton(
-//               onPressed: () {
-//                 Navigator.of(context).pop();
-//               },
-//               child: Text('Cancel'),
-//             ),
-//           ],
-//         );
-//       });
-// }

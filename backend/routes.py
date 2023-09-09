@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 import recommendation, db_operations
 import logging
+import datetime
 
 application = Flask(__name__)
 
@@ -25,7 +26,6 @@ def get_recommendation():
         data = request.get_json()
 
         # Extract required data from the request payload
-        user_id = data['user_id']
         stock_ticker = data['stock_ticker']
         capital = float(data['capital'])
         target_delta = float(data['target_delta'])
@@ -34,12 +34,19 @@ def get_recommendation():
         
         # Generate recommendation
         new_recommendation = recommendation.generate_recommendation(stock_ticker, capital, target_delta, max_price, strategy)
+
+        # option_expiry_date = datetime.datetime.now().date()
+        # datetime_obj = datetime.datetime.combine(option_expiry_date, datetime.datetime.min.time())
+        # new_recommendation = {
+        # "bid_price": 0.05,
+        # "delta": target_delta,
+        # "expiry_date": datetime_obj,
+        # "option_quantity": "15",
+        # "strike_price": 100,
+        # "ticker": stock_ticker
+        # }
+
         if new_recommendation:
-            db = db_operations.initialize_firestore()
-            if db is None:
-                logging.error("Failed to initialize Firestore database. Exiting...")
-                exit()
-            db_operations.add_recommendation_to_db(db, user_id, new_recommendation)
             return jsonify({'message': 'Recommendation processed successfully', 'data': new_recommendation})
         else:
             raise ValueError("Recommendation was not created. Check inputs and try again.")
