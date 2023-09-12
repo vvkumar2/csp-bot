@@ -1,5 +1,6 @@
 // UserModel definition
 import 'package:frontend/models/recommendation_model.dart';
+import 'package:frontend/models/watchlist_recommendation_model.dart';
 import 'package:frontend/models/watchlist_stock_model.dart';
 
 class UserModel {
@@ -9,7 +10,8 @@ class UserModel {
   final String imageUrl;
   final List<WatchlistStock> stockList;
   final List<Recommendation> recommendationList;
-  final List<Recommendation> addedRecommendationList;
+  final List<WatchlistRecommendation> addedRecommendationList;
+  final int recommendationsUsed;
 
   UserModel(
       {required this.uid,
@@ -18,7 +20,8 @@ class UserModel {
       required this.imageUrl,
       required this.stockList,
       required this.recommendationList,
-      required this.addedRecommendationList});
+      required this.addedRecommendationList,
+      required this.recommendationsUsed});
 
   factory UserModel.fromFirestore(String uid, Map<String, dynamic> data) {
     var stockList = (data['stock_list'] as List? ?? [])
@@ -27,17 +30,11 @@ class UserModel {
     var recommendationList = (data['recommendations_list'] as List? ?? [])
         .map((recommendationData) => Recommendation.fromMap(recommendationData))
         .toList();
-    var addedRecommendationList = (data['added_recommendations_list']
-                as List? ??
-            [])
-        .map((recommendationData) => Recommendation.fromMap(recommendationData))
-        .toList();
-
-    // print all values in stockList
-    recommendationList.forEach((element) {
-      print(element.ticker);
-      print(element.bidPrice);
-    });
+    var addedRecommendationList =
+        (data['added_recommendations_list'] as List? ?? [])
+            .map((recommendationData) =>
+                WatchlistRecommendation.fromMap(recommendationData))
+            .toList();
 
     return UserModel(
       uid: uid,
@@ -47,6 +44,7 @@ class UserModel {
       stockList: stockList,
       recommendationList: recommendationList,
       addedRecommendationList: addedRecommendationList,
+      recommendationsUsed: int.parse(data['recommendations_used'].toString()),
     );
   }
 }

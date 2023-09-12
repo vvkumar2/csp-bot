@@ -3,12 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/models/recommendation_model.dart';
 import 'package:frontend/models/stock_model.dart';
 import 'package:frontend/models/user_model.dart';
+import 'package:frontend/models/watchlist_recommendation_model.dart';
 import 'package:frontend/util.dart';
 import 'package:frontend/widgets/header_tooltip.dart';
 
 class EditRecDialog extends ConsumerWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final Recommendation recommendation;
+  final WatchlistRecommendation recommendation;
   final Function addRecToUserList;
 
   EditRecDialog(
@@ -31,7 +32,7 @@ class EditRecDialog extends ConsumerWidget {
         height: 45,
         width: double.infinity,
         child: Text(
-          "Edit Recommendation",
+          "Edit Option",
           textAlign: TextAlign.center,
           style: TextStyle(color: Colors.white, fontSize: 26),
         ),
@@ -117,14 +118,17 @@ class EditRecDialog extends ConsumerWidget {
               _formKey.currentState!.save();
               Navigator.of(context).pop();
               addRecToUserList(
-                Recommendation(
+                WatchlistRecommendation(
                     ticker: recommendation.ticker,
                     expiryDate: recommendation.expiryDate,
                     strikePrice: recommendation.strikePrice,
                     bidPrice: double.parse(bidInput!),
                     optionQuantity: int.parse(quantityInput!),
                     delta: recommendation.delta,
-                    isSold: true),
+                    isSold: false,
+                    isExpired: false,
+                    expirationStatus: '',
+                    profitLoss: 0.0),
                 ref,
               );
 

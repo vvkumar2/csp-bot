@@ -32,7 +32,7 @@ class _AuthScreenState extends State<AuthScreen> {
     if (_userImageFile == null && !_isLogin) {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Please pick an image!'),
+          content: const Text('Please pick an image!'),
           backgroundColor: Theme.of(context).colorScheme.error));
       return;
     }
@@ -64,7 +64,11 @@ class _AuthScreenState extends State<AuthScreen> {
             .set({
           'username': _enteredUsername,
           'email': _enteredEmail,
-          'image_url': url
+          'image_url': url,
+          'recommendations_used': 0,
+          'stock_list': [],
+          'recommendations_list': [],
+          'added_recommendations_list': [],
         });
       }
     } on FirebaseAuthException catch (error) {
@@ -96,7 +100,7 @@ class _AuthScreenState extends State<AuthScreen> {
               height: 30,
             ),
             Card(
-                color: Color.fromARGB(255, 22, 22, 23),
+                color: const Color.fromARGB(255, 22, 22, 23),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10)),

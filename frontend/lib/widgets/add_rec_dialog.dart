@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/models/recommendation_model.dart';
 import 'package:frontend/models/stock_model.dart';
 import 'package:frontend/models/user_model.dart';
+import 'package:frontend/models/watchlist_recommendation_model.dart';
 import 'package:frontend/util.dart';
 import 'package:frontend/widgets/header_tooltip.dart';
 
@@ -119,14 +120,17 @@ class AddRecDialog extends ConsumerWidget {
               _formKey.currentState!.save();
               Navigator.of(context).pop();
               addRecToUserList(
-                Recommendation(
+                WatchlistRecommendation(
                     ticker: recommendation.ticker,
                     expiryDate: recommendation.expiryDate,
                     strikePrice: recommendation.strikePrice,
-                    bidPrice: double.parse(bidInput!),
-                    optionQuantity: int.parse(quantityInput!),
+                    bidPrice: double.parse(bidInput),
+                    optionQuantity: int.parse(quantityInput),
                     delta: recommendation.delta,
-                    isSold: true),
+                    isSold: true,
+                    isExpired: false,
+                    expirationStatus: '',
+                    profitLoss: 0.0),
                 ref,
               );
               setRecToSold(recommendation, ref);
@@ -135,7 +139,7 @@ class AddRecDialog extends ConsumerWidget {
                 content: Text(
                     'Looks good! We will notify you when you should sell this!'),
                 backgroundColor: Colors.purple,
-                duration: Duration(seconds: 2),
+                duration: Duration(seconds: 5),
               );
               ScaffoldMessenger.of(context).showSnackBar(snackBar);
             }

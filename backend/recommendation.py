@@ -57,7 +57,7 @@ def generate_recommendation(stock_ticker, available_capital, desired_delta, max_
         "bid_price": option_bid_price,
         "delta": desired_delta,
         "expiry_date": datetime_obj,
-        "option_quantity": str(number_of_options),
+        "option_quantity": number_of_options,
         "strike_price": strike_price,
         "ticker": stock_ticker
     }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/firebase_api.dart';
 import 'package:frontend/screens/auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:frontend/screens/navbar.dart';
@@ -15,6 +16,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  // await FirebaseApi().initNotifications();
   await dotenv.load(fileName: "lib/.env");
   runApp(const ProviderScope(child: App()));
 }

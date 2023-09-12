@@ -2,8 +2,18 @@ import requests
 import logging
 import db_operations
 import datetime
+import dotenv
+import os
+from utils import request_handler
 
 logging.basicConfig(level=logging.INFO)
+
+dotenv.load_dotenv()
+TRADIER_API_KEY = os.getenv('TRADIER_API_KEY')
+headers = {
+        'Authorization': f'Bearer {TRADIER_API_KEY}',
+        'Accept': 'application/json'
+    }
 
 # Initialize Firebase Admin SDK
 db = db_operations.initialize_firestore()
@@ -56,15 +66,65 @@ for user in users:
         today = datetime.datetime.now()
         current_year = today.year
 
-    # Remove stocks from added_recs_list that have an expiry date (dd/MM) past the current date
+    # Remove stocks from added_recs_list that have an expiry date (dd/MM) past the current date and also update "is_sold" to true if the option has gaiend 30% or lost 50%
     new_added_recs_list = []
     for rec in added_recs_list:
         expiry = datetime.datetime.strptime(rec['expiry_date'], "%m/%d")
         expiry = expiry.replace(year=current_year)  # Assume expiry is for the current year
 
         if expiry.date() >= today.date():
-            new_added_recs_list.append(rec)
+            if rec['is_sold'] == False:
+                # check the option from tradier and caluclate gain/loss and then update the is_sold field
+                # Calculate the strike price based on the delta
+                response = request_handler('https://api.tradier.com/v1/markets/options/chains',
+                params={'symbol': rec["ticker"], 'expiration': expiry}, headers=headers)
 
+                if not response or 'options' not in response or 'option' not in response['options']:
+                    logging.error(f"Unexpected JSON structure in response for options: {response}")
+                    continue
+                
+                matched_option = None
+                all_options = response['options']['option']
+                for option in all_options:
+                    if option['strike'] == rec['strike_price'] and option['option_type'].lower() == 'put':
+                        matched_option = option
+                        break
+                
+                if matched_option is None:
+                    logging.error(f"Could not find option with strike price {rec['strike_price']} for stock {rec['ticker']}")
+                    continue
+
+                current_price = matched_option['bid']
+                gain_loss = (rec["bid_price"] - current_price)/rec["bid_price"]
+                if gain_loss >= 0.3 or gain_loss <= -0.5:
+                    rec['is_sold'] = True
+                    rec['profit_loss'] = gain_loss * 100
+                    new_added_recs_list.append(rec)
+                else:
+                    new_added_recs_list.append(rec)
+        else:
+            if rec['is_expired'] == True and rec['is_sold'] == True:
+                continue
+
+            rec['is_sold'] = True
+            rec['is_expired'] = True
+            
+            # Get current price of the stock
+            response = request_handler('https://api.tradier.com/v1/markets/quotes', params={'symbols': rec["ticker"], 'greeks': 'false'}, headers=headers)
+
+            if not response or 'quotes' not in response or 'quote' not in response['quotes']:
+                logging.error(f"Unexpected JSON structure in response for current price: {response}")
+                continue
+
+            current_price = response['quotes']['quote']['last']
+
+            if current_price <= rec['strike_price']:
+                rec['expiration_status'] = 'ITM'
+            else:
+                rec['expiration_status'] = 'OTM'
+
+            new_added_recs_list.append(rec)
+            
 
     # Add new recommendations to Firestore
     if new_recommendations_list:

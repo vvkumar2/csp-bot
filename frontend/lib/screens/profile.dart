@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/models/recommendation_model.dart';
 import 'package:frontend/models/user_model.dart';
+import 'package:frontend/models/watchlist_recommendation_model.dart';
 import 'package:frontend/models/watchlist_stock_model.dart';
 import 'package:frontend/providers/user_provider.dart';
 import 'package:frontend/widgets/edit_rec_dialog.dart';
@@ -49,14 +50,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               text: TextSpan(
                 children: [
                   TextSpan(
-                      text: '121',
+                      text: user.recommendationsUsed.toString(),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                         color: Theme.of(context).colorScheme.primary,
                       )),
                   TextSpan(
-                      text: ' Recommendations Received',
+                      text: ' Recommendations Used',
                       style: TextStyle(
                         fontSize: 14,
                         color: Theme.of(context).colorScheme.primary,
@@ -192,6 +193,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       style: TextStyle(
                           color: Colors.grey, fontWeight: FontWeight.bold))),
               DataColumn(
+                  label: Text('Buy Back?',
+                      style: TextStyle(
+                          color: Colors.grey, fontWeight: FontWeight.bold))),
+              DataColumn(
                   label: Text('Bid',
                       style: TextStyle(
                           color: Colors.grey, fontWeight: FontWeight.bold))),
@@ -205,7 +210,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           color: Colors.grey, fontWeight: FontWeight.bold))),
             ],
             rows: user.addedRecommendationList
-                .map((Recommendation recommendation) {
+                .map((WatchlistRecommendation recommendation) {
               return DataRow(cells: [
                 DataCell(
                   InkWell(
@@ -226,9 +231,43 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       style: const TextStyle(color: Colors.white)),
                 )),
                 DataCell(Align(
-                  alignment: Alignment.centerRight,
+                  alignment: Alignment.centerLeft,
                   child: Text(recommendation.strikePrice.toString(),
                       style: const TextStyle(color: Colors.white)),
+                )),
+                DataCell(Align(
+                  alignment: Alignment.centerLeft,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                          recommendation.isSold && !recommendation.isExpired
+                              ? 'Yes'
+                              : recommendation.isExpired
+                                  ? 'Expired'
+                                  : 'No',
+                          style: const TextStyle(color: Colors.white)),
+                      const SizedBox(height: 5),
+                      Text(
+                        recommendation.isSold && !recommendation.isExpired
+                            ? '${recommendation.profitLoss.toStringAsFixed(2)}%'
+                            : '-',
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: recommendation.profitLoss < 0
+                                ? const Color.fromARGB(255, 175, 76, 76)
+                                : recommendation.profitLoss > 0
+                                    ? const Color.fromARGB(255, 76, 175, 76)
+                                    : Colors.grey),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                  // child: Text(recommendation.isSold ? 'Yes' : 'No',
+                  //     style: const TextStyle(color: Colors.white)),
                 )),
                 DataCell(Align(
                   alignment: Alignment.centerRight,

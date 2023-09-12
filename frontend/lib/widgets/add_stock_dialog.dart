@@ -154,7 +154,7 @@ class AddStockDialog extends ConsumerWidget {
                   value: strategyInput,
                   hint: const Text('Select Strategy',
                       style: TextStyle(fontSize: 12, color: Colors.grey)),
-                  items: <String>['Balanced', 'Aggressive', 'Conservative']
+                  items: <String>['Aggressive', 'Balanced', 'Conservative']
                       .map((String value) {
                     return DropdownMenuItem<String>(
                       value: value,

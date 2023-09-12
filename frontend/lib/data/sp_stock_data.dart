@@ -476,7 +476,6 @@ List<String> sp500Tickers = [
   'TDY',
   'TFX',
   'TER',
-  'TSLA',
   'TXN',
   'TXT',
   'COO',

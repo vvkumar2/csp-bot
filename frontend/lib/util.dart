@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/models/recommendation_model.dart';
+import 'package:frontend/models/watchlist_recommendation_model.dart';
 import 'package:frontend/providers/user_provider.dart';
 
 Future<void> addStockToUserList(
@@ -55,7 +56,7 @@ Future<void> addStockToUserList(
 }
 
 Future<void> addRecToUserList(
-  Recommendation recommendation,
+  WatchlistRecommendation recommendation,
   WidgetRef ref,
 ) async {
   final userData = ref.read(userProvider);
@@ -89,6 +90,9 @@ Future<void> addRecToUserList(
       'option_quantity': recommendation.optionQuantity,
       'delta': recommendation.delta,
       'is_sold': false,
+      'is_expired': false,
+      'expiration_status': '',
+      'profit_loss': 0.0,
     };
 
     if (index != -1) {
@@ -96,14 +100,23 @@ Future<void> addRecToUserList(
     } else {
       // Add new recommendation data
       recList.add(newRecData);
+      try {
+        await users
+            .doc(userData.uid)
+            .update({'recommendations_used': FieldValue.increment(1)});
+      } catch (e) {
+        print("Failed to add/update recommendation: $e");
+      }
     }
 
     // Update the Firestore document
-    return users
-        .doc(userData.uid)
-        .update({'added_recommendations_list': recList}).catchError((error) {
-      print("Failed to add/update recommendation: $error");
-    });
+    try {
+      await users
+          .doc(userData.uid)
+          .update({'added_recommendations_list': recList});
+    } catch (e) {
+      print("Failed to add/update recommendation: $e");
+    }
   }
 }
 
@@ -127,15 +140,12 @@ Future<void> setRecToSold(
     List recList = data['recommendations_list'] ?? [];
 
     int index = recList.indexWhere((rec) {
-      return rec['ticker'] == recommendation.ticker &&
-          rec['expiry_date'] == recommendation.expiryDate &&
-          rec['strike_price'] == recommendation.strikePrice &&
-          rec['bid_price'] == recommendation.bidPrice &&
-          rec['option_quantity'] == recommendation.optionQuantity &&
-          rec['delta'] == recommendation.delta;
+      Recommendation recObj = Recommendation.fromMap(rec);
+      return recObj.ticker == recommendation.ticker &&
+          recObj.expiryDate == recommendation.expiryDate &&
+          recObj.strikePrice == recommendation.strikePrice &&
+          recObj.delta == recommendation.delta;
     });
-
-    print(index);
 
     Map<String, dynamic> newRecData = {
       'ticker': recommendation.ticker,
