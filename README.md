@@ -221,7 +221,7 @@ git clone https://github.com/vvkumar2/csp-bot
 
 2. Change to the project directory:
 ```sh
-cd csp-bot
+cd csp-bot/frontend
 ```
 
 3. Install the dependencies:
